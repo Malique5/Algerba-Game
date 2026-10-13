@@ -1,0 +1,911 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Get x Alone</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Grandstander:wght@600;800;900&family=Lexend:wght@400;500;700&display=swap">
+<style>
+/* Layout: one lesson column on graph paper; each rule is a numbered stop, every equation is a live board */
+:root{
+  --paper:#F2F5FB; --grid:#DCE3F1; --card:#FFFFFF; --ink:#1B2240; --soft:#5A6386; --line:#C9D2E6;
+  --var:#E0367A; --var-ink:#FFFFFF;
+  --add:#0E8F80; --add-bg:#DDF5F1;
+  --mul:#C46A00; --mul-bg:#FFEBCC;
+  --pow:#7A3FD1; --pow-bg:#EFE5FF;
+  --eq:#4B4FD8; --eq-bg:#E4E5FF;
+  --good:#1F9D55; --bad:#D6453D;
+  --display:"Grandstander", "Comic Sans MS", system-ui, sans-serif;
+  --body:"Lexend", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#12152A; --grid:#1D2240; --card:#1A1F3A; --ink:#E9ECF9; --soft:#A3AACB; --line:#2E3560;
+  --var:#FF5C9D; --var-ink:#1A0A12;
+  --add:#3FD6C2; --add-bg:#0F3A37;
+  --mul:#FFB547; --mul-bg:#3D2A0C;
+  --pow:#C39BFF; --pow-bg:#2C2050;
+  --eq:#8E92FF; --eq-bg:#262A5C;
+  --good:#4ADE80; --bad:#FF7A70; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#12152A; --grid:#1D2240; --card:#1A1F3A; --ink:#E9ECF9; --soft:#A3AACB; --line:#2E3560;
+  --var:#FF5C9D; --var-ink:#1A0A12;
+  --add:#3FD6C2; --add-bg:#0F3A37;
+  --mul:#FFB547; --mul-bg:#3D2A0C;
+  --pow:#C39BFF; --pow-bg:#2C2050;
+  --eq:#8E92FF; --eq-bg:#262A5C;
+  --good:#4ADE80; --bad:#FF7A70; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.6;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:28px 28px;padding:0 16px}
+.wrap{max-width:860px;margin:0 auto;padding-block:72px 80px;display:flex;flex-direction:column;gap:56px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.1}
+h1{font-size:clamp(44px,10vw,88px);font-weight:900;letter-spacing:-.01em}
+h1 .x{color:var(--var);display:inline-block;animation:squish 1.8s ease-in-out infinite}
+h2{font-size:clamp(28px,5vw,40px);font-weight:800}
+p{margin:0;max-width:62ch}
+.lead{font-size:19px;color:var(--soft)}
+.hero{display:flex;flex-direction:column;gap:18px}
+.hero .demo{font-size:clamp(30px,7vw,56px);margin-top:8px;display:flex;flex-wrap:wrap;gap:.4em 1em}
+.go{align-self:flex-start;font-family:var(--display);font-weight:800;font-size:20px;color:var(--var-ink);background:var(--var);
+  padding:12px 22px;border-radius:14px;text-decoration:none;box-shadow:0 4px 0 color-mix(in srgb,var(--var) 60%,#000)}
+.go:active{transform:translateY(3px);box-shadow:0 1px 0 color-mix(in srgb,var(--var) 60%,#000)}
+.parts{display:flex;flex-wrap:wrap;gap:10px}
+.parts a{font-weight:700;font-size:15px;color:var(--ink);text-decoration:none;background:var(--card);border:2px solid var(--line);
+  border-radius:999px;padding:8px 14px}
+.parts a:hover{border-color:var(--eq)}
+.parts a span{color:var(--eq);font-family:var(--display);margin-right:6px}
+
+/* language switch */
+.lang{position:fixed;z-index:40;top:calc(env(safe-area-inset-top,0px) + 12px);right:16px;display:flex;background:var(--card);
+  border:2px solid var(--ink);border-radius:999px;padding:3px;box-shadow:3px 3px 0 var(--ink)}
+.lang button{font-family:var(--body);font-weight:700;font-size:14px;border:0;background:transparent;color:var(--ink);
+  padding:6px 12px;border-radius:999px;cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--eq);color:var(--card)}
+.lang button:focus-visible{outline:3px solid var(--var);outline-offset:1px}
+
+/* part dividers */
+.part{display:flex;flex-direction:column;gap:6px;padding:22px 0 0;border-top:3px dashed var(--line)}
+.part small{font-weight:700;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--var)}
+.part h2{font-size:clamp(32px,6vw,52px);font-weight:900}
+
+section{display:flex;flex-direction:column;gap:18px}
+.tag{font-family:var(--body);font-weight:700;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--eq);
+  display:inline-flex;gap:8px;align-items:center}
+.tag b{background:var(--eq);color:var(--card);border-radius:999px;min-width:26px;height:26px;padding:0 6px;display:grid;place-items:center;letter-spacing:0;font-size:14px}
+.rulebox{background:var(--card);border:2px solid var(--ink);border-radius:18px;padding:18px 20px;box-shadow:6px 6px 0 var(--ink);
+  font-family:var(--display);font-weight:800;font-size:clamp(20px,3.6vw,26px);line-height:1.3}
+.rulebox em{font-style:normal;color:var(--var)}
+
+/* ---------- tokens ---------- */
+.expr{display:inline-flex;align-items:center;gap:.18em;font-family:var(--display);font-weight:800;flex-wrap:nowrap}
+.grp{display:inline-flex;align-items:center;gap:.15em}
+.tok{display:inline-block;padding:.02em .28em;border-radius:.32em;border:.06em solid currentColor;line-height:1.15;
+  font-variant-numeric:tabular-nums;transform-origin:50% 80%;user-select:none;-webkit-user-select:none;white-space:nowrap}
+.tok.var{background:var(--var);color:var(--var-ink);border-color:var(--var);box-shadow:0 .08em 0 color-mix(in srgb,var(--var) 55%,#000)}
+.tok.add{background:var(--add-bg);color:var(--add);box-shadow:0 .08em 0 var(--add)}
+.tok.mul,.tok.div{background:var(--mul-bg);color:var(--mul);box-shadow:0 .08em 0 var(--mul)}
+.tok.pow{background:var(--pow-bg);color:var(--pow);box-shadow:0 .08em 0 var(--pow)}
+.tok.num{background:var(--card);color:var(--ink);border-color:var(--line);box-shadow:0 .08em 0 var(--line)}
+.paren,.op{color:var(--soft);font-weight:600}
+.term{display:inline-flex;align-items:center;gap:.1em}
+.sg{font-family:var(--display);font-weight:900;color:var(--ink);padding:0 .04em}
+.sg.add{color:var(--add)} .sg.mul{color:var(--mul)} .sg.pow{color:var(--pow)}
+.supw{display:inline-flex;align-self:flex-start;font-size:.55em;margin-left:-.05em;margin-top:-.1em}
+.rad{display:inline-flex;align-items:stretch}
+.rsym{position:relative;display:flex;width:.62em;flex:none;color:var(--pow);border-radius:.15em;user-select:none;-webkit-user-select:none}
+.rsym svg{width:100%;height:100%;overflow:visible;display:block}
+.rsym path{fill:none;stroke:currentColor;stroke-width:.085em;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.rsym .ridx{position:absolute;left:-.02em;top:.12em;font-family:var(--display);font-weight:900;font-size:.36em;line-height:1}
+.stage .rsym[data-i]:hover{background:var(--pow-bg)}
+.radicand{display:inline-flex;align-items:center;gap:.15em;border-top:.085em solid var(--pow);padding:.18em .12em .02em .1em;margin-left:-.04em}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;font-size:.9em}
+.frac .num-row{display:flex;justify-content:center;padding:0 .1em .08em}
+.frac .den{display:flex;justify-content:center;border-top:.07em solid var(--ink);padding-top:.1em;align-self:stretch}
+.eqsign{font-family:var(--display);font-weight:900;color:var(--eq);padding:0 .15em;transition:transform .2s}
+
+.w1{animation:wob var(--d,2.2s) ease-in-out var(--dl,0s) infinite}
+.w2{animation:squish var(--d,1.8s) ease-in-out var(--dl,0s) infinite}
+.w3{animation:bob var(--d,1.6s) ease-in-out var(--dl,0s) infinite}
+@keyframes wob{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+@keyframes squish{0%,100%{transform:scale(1,1)}25%{transform:scale(1.14,.86)}50%{transform:scale(.9,1.1)}75%{transform:scale(1.04,.97)}}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-.14em) rotate(-2deg)}}
+@keyframes arrive{0%{transform:translateX(-2em) scale(.3) rotate(-30deg);opacity:0}70%{transform:translateX(.1em) scale(1.2) rotate(6deg);opacity:1}100%{transform:none}}
+@keyframes pop{0%{transform:scale(.2)}60%{transform:scale(1.3)}100%{transform:scale(1)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-.15em)}40%,80%{transform:translateX(.15em)}}
+@keyframes hop{0%,100%{transform:translateY(0) scale(1)}40%{transform:translateY(-.35em) scale(1.15,.9)}60%{transform:translateY(0) scale(.9,1.12)}}
+.arrive{animation:arrive .6s cubic-bezier(.3,1.5,.5,1) both}
+.pop{animation:pop .5s cubic-bezier(.3,1.6,.5,1) both}
+.hint{outline:.08em dashed var(--var);outline-offset:.08em}
+
+/* ---------- boards ---------- */
+.board{background:var(--card);border:2px solid var(--line);border-radius:20px;padding:18px clamp(14px,3vw,24px) 20px;display:flex;flex-direction:column;gap:14px}
+.stage{position:relative;display:flex;align-items:center;justify-content:center;min-height:3.4em;
+  font-size:clamp(26px,6.4vw,54px);padding:.5em 0 .3em;overflow:visible}
+.stage .side{display:flex;align-items:center;min-width:0}
+.stage .left{justify-content:flex-end;flex:1}
+.stage .right{justify-content:flex-start;flex:1;gap:.15em}
+.stage [data-i]{cursor:grab;touch-action:none}
+.stage [data-i]:hover{filter:brightness(1.08)}
+.stage [data-i]:focus-visible{outline:3px solid var(--eq);outline-offset:3px}
+.stage .lifted{opacity:.2;animation:none}
+.stage.dragging .eqsign{transform:scale(1.2)}
+.stage .eqsign.hot{transform:scale(1.5) rotate(-8deg);text-shadow:0 0 .3em var(--eq)}
+.flipnote{position:absolute;left:50%;top:-.2em;transform:translateX(-50%);font-family:var(--display);font-weight:800;
+  font-size:.38em;background:var(--eq);color:var(--card);padding:.15em .6em;border-radius:999px;white-space:nowrap;opacity:0;transition:opacity .15s;pointer-events:none}
+.flipnote.show{opacity:1}
+.solved .tok.var{animation:hop .7s ease-in-out 2}
+.ghost{position:fixed;z-index:60;pointer-events:none;left:0;top:0;font-family:var(--display);font-weight:800;
+  display:inline-flex;align-items:center;gap:.1em;transform:translate(-50%,-60%) rotate(-6deg) scale(1.15)}
+.ghost .tok{box-shadow:0 .2em .4em rgba(0,0,0,.2)}
+.ghost .gsup{font-size:.6em;transform:translateY(-.5em)}
+.ghost.crossed{animation:pop .35s both}
+.ghost.back{transition:left .3s ease,top .3s ease}
+
+.msg{min-height:1.6em;font-weight:500;text-align:center;margin:0 auto}
+.msg.good{color:var(--good)} .msg.bad{color:var(--bad)}
+.msg b{font-family:var(--display)}
+.log{list-style:none;margin:0;padding:12px 14px;border-radius:12px;background:var(--paper);font-family:var(--display);font-weight:600;
+  font-size:18px;display:flex;flex-direction:column;gap:2px;font-variant-numeric:tabular-nums;overflow-x:auto}
+.log li{white-space:nowrap}
+.log li:last-child{color:var(--eq);font-weight:800}
+.log .chk{color:var(--good)}
+.ctrl{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{font-family:var(--body);font-weight:700;font-size:15px;border-radius:12px;padding:10px 16px;cursor:pointer;
+  border:2px solid var(--ink);background:var(--card);color:var(--ink);box-shadow:0 3px 0 var(--ink)}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.btn.primary{background:var(--eq);color:var(--card);border-color:var(--eq);box-shadow:0 3px 0 color-mix(in srgb,var(--eq) 55%,#000)}
+.btn:focus-visible{outline:3px solid var(--var);outline-offset:2px}
+.btn:disabled{opacity:.4;cursor:default}
+.count{margin-left:auto;color:var(--soft);font-size:14px;font-variant-numeric:tabular-nums}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips .btn{font-family:var(--display);font-size:18px;padding:8px 14px}
+.chips .btn[aria-pressed="true"]{background:var(--ink);color:var(--card)}
+
+/* rule 1 picture */
+.alone{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.alone .card{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px;align-items:center;text-align:center}
+.alone .card .expr{font-size:clamp(30px,6vw,44px)}
+.alone .card small{color:var(--soft);font-size:15px}
+.verdict{font-family:var(--display);font-weight:800;font-size:18px}
+.verdict.no{color:var(--bad)} .verdict.yes{color:var(--good)}
+
+/* flip cards */
+.flips{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.flip{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:16px;display:flex;align-items:center;justify-content:center;gap:16px;font-family:var(--display);font-weight:900;font-size:40px}
+.flip .arrow{color:var(--eq);font-size:28px}
+.flip .sg{font-size:56px;line-height:1}
+.flip .spin{display:inline-block;animation:spin 2.4s ease-in-out infinite}
+@keyframes spin{0%,35%{transform:rotateY(0)}50%,85%{transform:rotateY(360deg)}100%{transform:rotateY(360deg)}}
+.flip small{display:block;font-family:var(--body);font-size:13px;font-weight:500;color:var(--soft)}
+
+/* quiz */
+.quiz{display:flex;flex-direction:column;gap:16px;align-items:center}
+.quiz .expr{font-size:clamp(34px,8vw,60px)}
+.answers{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.answers .btn{font-family:var(--display);font-size:22px;padding:12px 22px}
+.answers .btn.right{background:var(--good);border-color:var(--good);color:var(--card)}
+.answers .btn.wrong{background:var(--bad);border-color:var(--bad);color:var(--card);animation:shake .4s}
+.reveal{display:flex;flex-direction:column;gap:16px;align-items:center;text-align:center}
+.onion{display:inline-flex;font-family:var(--display);font-weight:800;font-size:clamp(16px,3.5vw,20px)}
+.layer{border:3px solid var(--l);border-radius:22px;padding:10px 12px;display:flex;align-items:center;gap:10px;background:color-mix(in srgb,var(--l) 10%,var(--card))}
+.layer > .lab{color:var(--l);white-space:nowrap}
+.layer.o{--l:var(--add)} .layer.m{--l:var(--mul)}
+.core{background:var(--var);color:var(--var-ink);border-radius:12px;padding:4px 14px;font-size:1.4em}
+.reveal .rulebox{text-align:left}
+
+/* power explorer */
+.explorer{gap:16px}
+.exp-ctrl{display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center}
+.exp-ctrl label{font-weight:700;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);display:block;margin-bottom:4px}
+.stepper{display:inline-flex;align-items:center;gap:10px}
+.stepper .btn{font-family:var(--display);font-size:22px;width:44px;height:44px;padding:0}
+.stepper output{font-family:var(--display);font-weight:900;font-size:30px;min-width:2ch;text-align:center;color:var(--mul);font-variant-numeric:tabular-nums}
+.exp-eq{font-family:var(--display);font-weight:800;font-size:clamp(28px,6vw,48px);display:flex;flex-wrap:wrap;align-items:center;gap:.2em .3em}
+.exp-eq .base{color:var(--mul)} .exp-eq .pw{color:var(--pow);font-size:.6em;align-self:flex-start;margin-left:-.25em}
+.exp-eq .res{color:var(--eq)}
+.exp-say{color:var(--soft)}
+.exp-say b{color:var(--ink);font-family:var(--display)}
+.exp-vis{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;padding:6px 0;min-height:60px}
+.tiles{display:grid;gap:2px}
+.tiles i{width:var(--s);height:var(--s);border-radius:3px;background:var(--mul);opacity:.85;animation:pop .35s both}
+.layerbox{display:flex;flex-direction:column;align-items:center;gap:4px}
+.layerbox small{font-size:12px;color:var(--soft)}
+.layerbox .tiles i{background:var(--pow)}
+
+/* challenge button */
+.challenge{align-items:center;text-align:center}
+.chal{display:inline-flex;align-items:center;gap:.02em;font-family:var(--display);font-weight:900;font-size:clamp(30px,7vw,52px);
+  color:var(--var-ink);background:var(--var);text-decoration:none;padding:.3em .7em .35em;border-radius:.45em;
+  box-shadow:0 .14em 0 color-mix(in srgb,var(--var) 55%,#000);animation:chal 2.6s ease-in-out infinite;transform-origin:50% 60%}
+.chal span{display:inline-block;animation:bob 1.2s ease-in-out infinite}
+.chal span.sp{width:.3em}
+.chal:hover{filter:brightness(1.08)}
+.chal:active{box-shadow:0 .04em 0 color-mix(in srgb,var(--var) 55%,#000);translate:0 .08em}
+.chal:focus-visible{outline:4px solid var(--eq);outline-offset:4px}
+@keyframes chal{0%,100%{transform:rotate(-2deg) scale(1)}25%{transform:rotate(2deg) scale(1.06,.95)}50%{transform:rotate(-1deg) scale(.97,1.04)}75%{transform:rotate(2deg) scale(1.03)}}
+.challenge small{color:var(--soft);font-size:14px}
+.confetti{position:absolute;left:50%;top:50%;width:.22em;height:.36em;border-radius:.06em;pointer-events:none;
+  animation:burst 1s cubic-bezier(.2,.8,.4,1) forwards}
+@keyframes burst{to{transform:translate(var(--tx),var(--ty)) rotate(var(--r));opacity:0}}
+footer{color:var(--soft);font-size:14px;text-align:center}
+
+@media (prefers-reduced-motion: reduce){
+  .w1,.w2,.w3,h1 .x,.flip .spin,.solved .tok.var,.tiles i,.chal,.chal span{animation:none!important}
+  .arrive,.pop,.ghost.crossed{animation-duration:.01s!important}
+  .confetti{display:none}
+  }
+</style>
+
+<div class="lang" role="group" aria-label="Language / Bahasa">
+  <button id="lang-en" data-lang="en" aria-pressed="true">English</button>
+  <button id="lang-ms" data-lang="ms" aria-pressed="false">Bahasa Melayu</button>
+</div>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="tag">Algebra · Tingkatan 1–3</span>
+    <h1 data-t="h1"></h1>
+    <p class="lead" data-t="lead"></p>
+    <div class="demo" id="heroEq"></div>
+    <nav class="parts">
+      <a href="#partA"><span>A</span><span data-t="pA"></span></a>
+      <a href="#partB"><span>B</span><span data-t="pB"></span></a>
+      <a href="#partC"><span>C</span><span data-t="pC"></span></a>
+    </nav>
+  </header>
+
+  <!-- ================= PART A ================= -->
+  <div class="part" id="partA"><small data-t="partA"></small><h2 data-t="pA"></h2></div>
+
+  <section id="rule1">
+    <span class="tag"><b>1</b><span data-t="t1"></span></span>
+    <h2 data-t="h1r"></h2>
+    <div class="rulebox" data-t="r1"></div>
+    <p data-t="p1"></p>
+    <div class="alone">
+      <div class="card"><div class="expr" id="r1a"></div><span class="verdict no" data-t="notyet"></span><small data-t="notyetS"></small></div>
+      <div class="card"><div class="expr" id="r1b"></div><span class="verdict yes" data-t="yes"></span><small data-t="yesS"></small></div>
+    </div>
+  </section>
+
+  <section id="rule2">
+    <span class="tag"><b>2</b><span data-t="t2"></span></span>
+    <h2 data-t="h2"></h2>
+    <p data-t="p2"></p>
+    <div class="flips">
+      <div class="flip"><span class="sg add spin">+</span><span class="arrow">⇄</span><span class="sg add spin" style="animation-delay:.3s">−</span><small data-t="f1"></small></div>
+      <div class="flip"><span class="sg mul spin">×</span><span class="arrow">⇄</span><span class="sg mul spin" style="animation-delay:.3s">÷</span><small data-t="f2"></small></div>
+    </div>
+    <p data-t="try"></p>
+    <div class="chips" id="labChips" role="group">
+      <button class="btn" data-k="0" aria-pressed="true" data-t="cAdd"></button>
+      <button class="btn" data-k="1" aria-pressed="false" data-t="cSub"></button>
+      <button class="btn" data-k="2" aria-pressed="false" data-t="cMul"></button>
+      <button class="btn" data-k="3" aria-pressed="false" data-t="cDiv"></button>
+    </div>
+    <div id="lab"></div>
+  </section>
+
+  <section id="practice">
+    <span class="tag"><b>3</b><span data-t="t3"></span></span>
+    <h2 data-t="h3"></h2>
+    <p data-t="p3"></p>
+    <div id="prac"></div>
+  </section>
+
+  <section id="order">
+    <span class="tag"><b>4</b><span data-t="t4"></span></span>
+    <h2 data-t="h4"></h2>
+    <p data-t="p4"></p>
+    <div class="board quiz">
+      <div class="expr" id="qEq"></div>
+      <div class="answers" id="qAns">
+        <button class="btn" data-a="2" data-t="a2"></button>
+        <button class="btn" data-a="3" data-t="a3"></button>
+      </div>
+      <p class="msg" id="qMsg" aria-live="polite"></p>
+      <div class="reveal" id="qReveal" hidden>
+        <div class="rulebox" data-t="r4"></div>
+        <p data-t="p4b"></p>
+        <div class="onion">
+          <div class="layer o"><span class="lab">+ 3</span>
+            <div class="layer m"><span class="lab">÷ 2</span><span class="core">x</span></div>
+            <span class="lab" data-t="first"></span>
+          </div>
+        </div>
+        <a class="go" href="#round" data-t="tryDrag"></a>
+      </div>
+    </div>
+  </section>
+
+  <section id="round">
+    <span class="tag"><b>5</b><span data-t="t5"></span></span>
+    <h2 data-t="h5"></h2>
+    <p data-t="p5"></p>
+    <div id="frac"></div>
+  </section>
+
+  <!-- ================= PART B ================= -->
+  <div class="part" id="partB"><small data-t="partB"></small><h2 data-t="pB"></h2></div>
+
+  <section id="power">
+    <span class="tag"><b>6</b><span data-t="t6"></span></span>
+    <h2 data-t="h6"></h2>
+    <p data-t="p6"></p>
+    <div class="board explorer">
+      <div class="exp-ctrl">
+        <div>
+          <label for="expN" data-t="base"></label>
+          <div class="stepper">
+            <button class="btn" id="expMinus" aria-label="−1">−</button>
+            <output id="expN">5</output>
+            <button class="btn" id="expPlus" aria-label="+1">+</button>
+          </div>
+        </div>
+        <div>
+          <label data-t="power"></label>
+          <div class="chips" id="expPow" role="group">
+            <button class="btn" data-p="2" aria-pressed="true" data-t="sq"></button>
+            <button class="btn" data-p="3" aria-pressed="false" data-t="cu"></button>
+          </div>
+        </div>
+      </div>
+      <div class="exp-eq" id="expEq"></div>
+      <p class="exp-say" id="expSay"></p>
+      <div class="exp-vis" id="expVis" aria-hidden="true"></div>
+      <p class="exp-say" id="expRoot"></p>
+    </div>
+  </section>
+
+  <section id="roots">
+    <span class="tag"><b>7</b><span data-t="t7"></span></span>
+    <h2 data-t="h7"></h2>
+    <p data-t="p7"></p>
+    <div class="flips">
+      <div class="flip"><span class="sg pow spin">²</span><span class="arrow">⇄</span><span class="sg pow spin" style="animation-delay:.3s">√</span><small data-t="f3"></small></div>
+      <div class="flip"><span class="sg pow spin">³</span><span class="arrow">⇄</span><span class="sg pow spin" style="animation-delay:.3s">∛</span><small data-t="f4"></small></div>
+    </div>
+    <div class="rulebox" data-t="r7"></div>
+    <p data-t="try2"></p>
+    <div class="chips" id="labChips2" role="group">
+      <button class="btn" data-k="0" aria-pressed="true" data-t="cSq"></button>
+      <button class="btn" data-k="1" aria-pressed="false" data-t="cCu"></button>
+      <button class="btn" data-k="2" aria-pressed="false" data-t="cSqrt"></button>
+      <button class="btn" data-k="3" aria-pressed="false" data-t="cCbrt"></button>
+    </div>
+    <div id="lab2"></div>
+  </section>
+
+  <section id="mix">
+    <span class="tag"><b>8</b><span data-t="t8"></span></span>
+    <h2 data-t="h8"></h2>
+    <p data-t="p8"></p>
+    <div id="mixb"></div>
+  </section>
+
+  <!-- ================= PART C ================= -->
+  <div class="part" id="partC"><small data-t="partC"></small><h2 data-t="pC"></h2></div>
+
+  <section id="game" class="challenge">
+    <p data-t="pGame"></p>
+    <a class="chal" id="chal" href="https://claude.ai/artifact/4uVQ8Lsm6iMo8TATVFpR91#ms" target="_blank" rel="noopener" aria-label="Algebra Challenge!"><span style="animation-delay:-0.00s">A</span><span style="animation-delay:-0.09s">l</span><span style="animation-delay:-0.18s">g</span><span style="animation-delay:-0.27s">e</span><span style="animation-delay:-0.36s">b</span><span style="animation-delay:-0.45s">r</span><span style="animation-delay:-0.54s">a</span><span class="sp"></span><span style="animation-delay:-0.72s">C</span><span style="animation-delay:-0.81s">h</span><span style="animation-delay:-0.90s">a</span><span style="animation-delay:-0.99s">l</span><span style="animation-delay:-1.08s">l</span><span style="animation-delay:-1.17s">e</span><span style="animation-delay:-1.26s">n</span><span style="animation-delay:-1.35s">g</span><span style="animation-delay:-1.44s">e</span><span style="animation-delay:-1.53s">!</span></a>
+    <small data-t="chalNote"></small>
+  </section>
+
+  <footer data-t="foot"></footer>
+</div>
+
+<script>
+/* ======================= LESSON ======================= */
+(() => {
+const MINUS = '−';
+const SUP = {2:'²',3:'³'}, ROOT = {2:'√',3:'∛'};
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const fmt = n => n < 0 ? MINUS + Math.abs(n) : String(n);
+const EQ = '<span style="color:var(--eq);font-weight:700">=</span>';
+
+const T = {
+ en: {
+  h1:'Get <span class="x">x</span> alone.',
+  lead:'Solving an equation means finding the value of the letter. To do it, move every other number to the other side of the equals sign until the letter stands by itself.',
+  pA:'Linear equations', pB:'Powers and roots', pC:'Algebra Challenge',
+  partA:'Part A', partB:'Part B', partC:'Part C',
+  t1:'The goal', h1r:'The letter must end up alone',
+  r1:'To solve for <em>x</em>, every other number must <em>cross the = sign</em>. Only x stays behind.',
+  p1:'The letter can be x, y, k, m or any other letter. It is called the <b>variable</b>. It is the number we are trying to find.',
+  notyet:'Not solved yet', notyetS:'The 4 is still on the same side as x.', yes:'Solved!', yesS:'x is alone, so x = 5.',
+  t2:'Inverse operations', h2:'A number changes when it crosses =',
+  p2:'When a number moves to the other side of the = sign, its operation turns into the <b>inverse operation</b>.',
+  f1:'Add becomes subtract<br>Subtract becomes add', f2:'Multiply becomes divide<br>Divide becomes multiply',
+  try:`<b>Try it.</b> Pick an operation, then drag the green or orange number over the ${EQ} sign. Watch the operation change the moment it crosses.`,
+  cAdd:'+ add', cSub:'− subtract', cMul:'× multiply', cDiv:'÷ divide',
+  t3:'Practice', h3:'Solve these by dragging',
+  p3:'Drag the number to the other side of the = sign. When the variable is alone, you have the answer.',
+  t4:'Equations with fractions', h4:'Which number do we move first?',
+  p4:'This equation has two numbers with x, and one of them is the denominator of a fraction. Think before you drag.',
+  a2:'The 2 (÷ 2)', a3:'The 3 (+ 3)',
+  r4:'Move the number <em>farthest from x</em> first, then the nearer one.',
+  p4b:'The 2 is the denominator and sits right under x. The 3 is outside the fraction and farther from x. So + 3 moves first, then ÷ 2.',
+  first:'Moves first', tryDrag:'Try it with dragging ↓',
+  t5:'Drag and drop', h5:'Move numbers from the outside in',
+  p5:'Same moves as before, but now the order matters. If you drag a number that is closer to the variable, it goes back to its place.',
+  t6:'Powers', h6:'What is a power?',
+  p6:'A power is a short way to write repeated multiplication. In 5², the 5 is the <b>base</b> and the small 2 is the <b>power</b>. The power tells you how many times the base appears in the multiplication. 5² is read as “five squared” and 5³ as “five cubed”.',
+  base:'Base', power:'Power', sq:'² squared', cu:'³ cubed',
+  sqSay:(n,r)=>`${n}² means ${n} × ${n}. ${n} rows of ${n} tiles make <b>${r}</b> tiles.`,
+  cuSay:(n,r)=>`${n}³ means ${n} × ${n} × ${n}. ${n} layers of ${n} × ${n} tiles make <b>${r}</b> tiles.`,
+  sqRoot:(n,r)=>`So <b>√${r} = ${n}</b>, because ${n} × ${n} = ${r}.`,
+  cuRoot:(n,r)=>`So <b>∛${r} = ${n}</b>, because ${n} × ${n} × ${n} = ${r}.`,
+  layer:k=>`Layer ${k}`,
+  t7:'Roots', h7:'A root is the inverse of a power',
+  p7:'Squaring and finding the square root are inverse operations. So are cubing and finding the cube root. When a power crosses the = sign, it turns into the matching root.',
+  f3:'Squared becomes square root<br>Square root becomes squared', f4:'Cubed becomes cube root<br>Cube root becomes cubed',
+  r7:'If x² = 49, then x = <em>7 or x = −7</em>, because 7 × 7 = 49 and (−7) × (−7) = 49. A cube has only one answer: if x³ = 8, then x = 2.',
+  try2:'<b>Try it.</b> Pick one, then drag the purple power or root across the = sign.',
+  cSq:'² squared', cCu:'³ cubed', cSqrt:'√ square root', cCbrt:'∛ cube root',
+  t8:'Put it together', h8:'Powers in longer equations',
+  p8:'The same order rule still works. The power or root is closest to the variable, so it always moves last.',
+  mixIntro:'Move the farthest number first. The power or root moves last.',
+  pGame:'Ready to test yourself? Drag the right blocks into the empty boxes before time runs out. The game opens in a new tab.',
+  chalNote:'Tap the button to start playing.',
+  foot:'Remember: <b>+ ⇄ −</b>, <b>× ⇄ ÷</b>, <b>² ⇄ √</b> and <b>³ ⇄ ∛</b> when crossing the =. The number farthest from the variable moves first.',
+  reset:'Start over', next:'Next equation →',
+  count:(i,n)=>`Equation ${i} of ${n}`, done:n=>`All ${n} equations solved. Great work!`,
+  aria:l=>`${l}, drag across the equals sign`,
+  dragAny:'Drag a number across the = sign.',
+  dragThis:l=>`Drag the <b>${l}</b> over the = sign.`,
+  fracIntro:'Which number is farthest from the variable? Drag that one first.',
+  fracIntro3:'This equation has three numbers. Start with the one farthest from the variable.',
+  addPos:v=>`<b>+${v}</b> crossed the = and became <b>${MINUS}${v}</b>. Addition turns into subtraction.`,
+  addNeg:v=>`<b>${MINUS}${v}</b> crossed the = and became <b>+${v}</b>. Subtraction turns into addition.`,
+  mul:v=>`<b>×${v}</b> crossed the = and became <b>÷${v}</b>. Multiplication turns into division.`,
+  div:v=>`<b>÷${v}</b> crossed the = and became <b>×${v}</b>. Division turns into multiplication.`,
+  pow2:'<b>²</b> crossed the = and became <b>√</b>. Squared turns into square root.',
+  pow3:'<b>³</b> crossed the = and became <b>∛</b>. Cubed turns into cube root.',
+  root2:'<b>√</b> crossed the = and became <b>²</b>. Square root turns into squared.',
+  root3:'<b>∛</b> crossed the = and became <b>³</b>. Cube root turns into cubed.',
+  keep:(r,n,x)=>`${r} = <b>${n}</b>. ${x} is not alone yet. Keep going!`,
+  solved:(x,n)=>`🎉 <b>${x} = ${n}</b>. ${x} is alone, so the equation is solved!`,
+  solvedPm:(x,n)=>`🎉 <b>${x} = ${n} or ${x} = ${MINUS}${n}</b>. Both are correct, because ${n}² and (${MINUS}${n})² give the same answer.`,
+  check:'Check', and:'and',
+  tooClose:(l,x,f)=>`Not yet! <b>${l}</b> is closer to ${x}. Move the number <b>farthest</b> from ${x} first, which is <b>${f}</b>.`,
+  tooCloseK:(x,f)=>`Not yet! Move the number <b>farthest</b> from ${x} first, which is <b>${f}</b>.`,
+  dropOther:'Drop it on the <b>other side</b> of the = sign.',
+  qRight:'<b>Correct!</b> The 3 is farthest from x. So + 3 moves first, then ÷ 2.',
+  qWrong:'<b>Not quite.</b> The 2 is the denominator and sits right under x. Another number is farther from x.',
+  chipsAria:'Choose an operation'
+ },
+ ms: {
+  h1:'Asingkan <span class="x">x</span>.',
+  lead:'Untuk menyelesaikan persamaan, kita perlu mencari nilai pemboleh ubah. Caranya ialah dengan memindahkan semua nombor lain ke sebelah tanda sama dengan (=) yang bertentangan sehingga pemboleh ubah tinggal bersendirian.',
+  pA:'Persamaan linear', pB:'Kuasa dan punca kuasa', pC:'Algebra Challenge',
+  partA:'Bahagian A', partB:'Bahagian B', partC:'Bahagian C',
+  t1:'Matlamat', h1r:'Pemboleh ubah mesti diasingkan',
+  r1:'Untuk mencari nilai <em>x</em>, semua nombor lain mesti <em>dipindahkan melintasi tanda =</em>. Hanya x yang tinggal di sebelahnya.',
+  p1:'Pemboleh ubah boleh diwakili oleh huruf x, y, k, m atau huruf lain. Pemboleh ubah ialah nilai yang belum diketahui dan perlu dicari.',
+  notyet:'Belum selesai', notyetS:'Nombor 4 masih berada di sebelah yang sama dengan x.', yes:'Selesai!', yesS:'x sudah bersendirian. Maka, x = 5.',
+  t2:'Operasi songsang', h2:'Operasi berubah apabila nombor melintasi tanda =',
+  p2:'Apabila nombor dipindahkan ke sebelah tanda = yang bertentangan, operasinya bertukar kepada <b>operasi songsang</b>.',
+  f1:'Tambah menjadi tolak<br>Tolak menjadi tambah', f2:'Darab menjadi bahagi<br>Bahagi menjadi darab',
+  try:`<b>Cuba.</b> Pilih satu operasi. Kemudian, seret nombor berwarna hijau atau oren melintasi tanda ${EQ}. Perhatikan perubahan operasinya sebaik sahaja nombor itu melintasi tanda =.`,
+  cAdd:'+ tambah', cSub:'− tolak', cMul:'× darab', cDiv:'÷ bahagi',
+  t3:'Latihan', h3:'Selesaikan persamaan dengan menyeret nombor',
+  p3:'Seret nombor ke sebelah tanda = yang bertentangan. Apabila pemboleh ubah tinggal bersendirian, anda telah memperoleh jawapannya.',
+  t4:'Persamaan yang melibatkan pecahan', h4:'Nombor manakah yang perlu dipindahkan dahulu?',
+  p4:'Persamaan ini mempunyai dua nombor di sebelah x, dan salah satunya ialah penyebut pecahan. Fikirkan dahulu sebelum menyeret.',
+  a2:'Nombor 2 (÷ 2)', a3:'Nombor 3 (+ 3)',
+  r4:'Pindahkan nombor yang <em>paling jauh daripada x</em> dahulu, kemudian nombor yang lebih dekat.',
+  p4b:'Nombor 2 ialah penyebut dan berada betul-betul di bawah x. Nombor 3 pula berada di luar pecahan dan lebih jauh daripada x. Oleh itu, + 3 dipindahkan dahulu, diikuti oleh ÷ 2.',
+  first:'Dipindahkan dahulu', tryDrag:'Cuba dengan menyeret ↓',
+  t5:'Seret dan letak', h5:'Pindahkan nombor dari luar ke dalam',
+  p5:'Langkahnya sama seperti sebelum ini, tetapi kini urutan pemindahan penting. Jika anda menyeret nombor yang lebih dekat dengan pemboleh ubah, nombor itu akan kembali ke tempat asalnya.',
+  t6:'Kuasa', h6:'Apakah itu kuasa?',
+  p6:'Kuasa ialah cara ringkas untuk menulis pendaraban berulang. Dalam 5², nombor 5 ialah <b>nombor asas</b> dan nombor kecil 2 ialah <b>kuasa</b>. Kuasa menunjukkan bilangan kali nombor asas muncul dalam pendaraban. 5² dibaca “lima kuasa dua” dan 5³ dibaca “lima kuasa tiga”.',
+  base:'Nombor asas', power:'Kuasa', sq:'² kuasa dua', cu:'³ kuasa tiga',
+  sqSay:(n,r)=>`${n}² bermaksud ${n} × ${n}. Sebanyak ${n} baris dengan ${n} jubin setiap baris menghasilkan <b>${r}</b> jubin.`,
+  cuSay:(n,r)=>`${n}³ bermaksud ${n} × ${n} × ${n}. Sebanyak ${n} lapisan dengan ${n} × ${n} jubin setiap lapisan menghasilkan <b>${r}</b> jubin.`,
+  sqRoot:(n,r)=>`Maka, <b>√${r} = ${n}</b> kerana ${n} × ${n} = ${r}.`,
+  cuRoot:(n,r)=>`Maka, <b>∛${r} = ${n}</b> kerana ${n} × ${n} × ${n} = ${r}.`,
+  layer:k=>`Lapisan ${k}`,
+  t7:'Punca kuasa', h7:'Punca kuasa ialah operasi songsang bagi kuasa',
+  p7:'Kuasa dua dan punca kuasa dua ialah operasi songsang. Begitu juga kuasa tiga dan punca kuasa tiga. Apabila kuasa melintasi tanda =, kuasa itu bertukar menjadi punca kuasa yang sepadan.',
+  f3:'Kuasa dua menjadi punca kuasa dua<br>Punca kuasa dua menjadi kuasa dua', f4:'Kuasa tiga menjadi punca kuasa tiga<br>Punca kuasa tiga menjadi kuasa tiga',
+  r7:'Jika x² = 49, maka x = <em>7 atau x = −7</em>, kerana 7 × 7 = 49 dan (−7) × (−7) = 49. Kuasa tiga hanya mempunyai satu jawapan: jika x³ = 8, maka x = 2.',
+  try2:'<b>Cuba.</b> Pilih satu jenis. Kemudian, seret kuasa atau punca kuasa yang berwarna ungu melintasi tanda =.',
+  cSq:'² kuasa dua', cCu:'³ kuasa tiga', cSqrt:'√ punca kuasa dua', cCbrt:'∛ punca kuasa tiga',
+  t8:'Gabungkan', h8:'Kuasa dalam persamaan yang lebih panjang',
+  p8:'Peraturan urutan yang sama masih digunakan. Kuasa atau punca kuasa berada paling dekat dengan pemboleh ubah, maka ia sentiasa dipindahkan paling akhir.',
+  mixIntro:'Pindahkan nombor yang paling jauh dahulu. Kuasa atau punca kuasa dipindahkan paling akhir.',
+  pGame:'Sudah bersedia untuk menguji diri? Seret blok yang betul ke dalam petak kosong sebelum masa tamat. Permainan akan dibuka dalam tab baharu.',
+  chalNote:'Tekan butang untuk mula bermain.',
+  foot:'Ingat: <b>+ ⇄ −</b>, <b>× ⇄ ÷</b>, <b>² ⇄ √</b> dan <b>³ ⇄ ∛</b> apabila nombor melintasi tanda =. Pindahkan nombor yang paling jauh daripada pemboleh ubah dahulu.',
+  reset:'Mula semula', next:'Persamaan seterusnya →',
+  count:(i,n)=>`Persamaan ${i} daripada ${n}`, done:n=>`Kesemua ${n} persamaan telah diselesaikan. Syabas!`,
+  aria:l=>`${l}, seret melintasi tanda sama dengan`,
+  dragAny:'Seret satu nombor melintasi tanda =.',
+  dragThis:l=>`Seret <b>${l}</b> melintasi tanda =.`,
+  fracIntro:'Nombor manakah yang paling jauh daripada pemboleh ubah? Seret nombor itu dahulu.',
+  fracIntro3:'Persamaan ini mempunyai tiga nombor. Mulakan dengan nombor yang paling jauh daripada pemboleh ubah.',
+  addPos:v=>`<b>+${v}</b> telah melintasi tanda = dan menjadi <b>${MINUS}${v}</b>. Operasi tambah bertukar menjadi tolak.`,
+  addNeg:v=>`<b>${MINUS}${v}</b> telah melintasi tanda = dan menjadi <b>+${v}</b>. Operasi tolak bertukar menjadi tambah.`,
+  mul:v=>`<b>×${v}</b> telah melintasi tanda = dan menjadi <b>÷${v}</b>. Operasi darab bertukar menjadi bahagi.`,
+  div:v=>`<b>÷${v}</b> telah melintasi tanda = dan menjadi <b>×${v}</b>. Operasi bahagi bertukar menjadi darab.`,
+  pow2:'<b>²</b> telah melintasi tanda = dan menjadi <b>√</b>. Kuasa dua bertukar menjadi punca kuasa dua.',
+  pow3:'<b>³</b> telah melintasi tanda = dan menjadi <b>∛</b>. Kuasa tiga bertukar menjadi punca kuasa tiga.',
+  root2:'<b>√</b> telah melintasi tanda = dan menjadi <b>²</b>. Punca kuasa dua bertukar menjadi kuasa dua.',
+  root3:'<b>∛</b> telah melintasi tanda = dan menjadi <b>³</b>. Punca kuasa tiga bertukar menjadi kuasa tiga.',
+  keep:(r,n,x)=>`${r} = <b>${n}</b>. ${x} belum bersendirian. Teruskan!`,
+  solved:(x,n)=>`🎉 <b>${x} = ${n}</b>. ${x} sudah bersendirian. Persamaan telah diselesaikan!`,
+  solvedPm:(x,n)=>`🎉 <b>${x} = ${n} atau ${x} = ${MINUS}${n}</b>. Kedua-duanya betul kerana ${n}² dan (${MINUS}${n})² memberikan jawapan yang sama.`,
+  check:'Semak', and:'dan',
+  tooClose:(l,x,f)=>`Belum lagi! <b>${l}</b> lebih dekat dengan ${x}. Pindahkan nombor yang <b>paling jauh</b> daripada ${x} dahulu, iaitu <b>${f}</b>.`,
+  tooCloseK:(x,f)=>`Belum lagi! Pindahkan nombor yang <b>paling jauh</b> daripada ${x} dahulu, iaitu <b>${f}</b>.`,
+  dropOther:'Lepaskan nombor itu di sebelah tanda = yang <b>bertentangan</b>.',
+  qRight:'<b>Betul!</b> Nombor 3 paling jauh daripada x. Maka, + 3 dipindahkan dahulu, diikuti oleh ÷ 2.',
+  qWrong:'<b>Kurang tepat.</b> Nombor 2 ialah penyebut dan berada betul-betul di bawah x. Ada nombor lain yang lebih jauh daripada x.',
+  chipsAria:'Pilih operasi'
+ }
+};
+let lang = 'en';
+try { const s = localStorage.getItem('gxa-lang'); if (s === 'ms' || s === 'en') lang = s; } catch(e){}
+const t = k => T[lang][k];
+
+/* ---------- text forms (working log) ---------- */
+function exprText(base, ops, isNum){
+  let s = base, complex = false;
+  for (const o of ops){
+    if (o.t === 'add'){ s = `${s} ${o.v < 0 ? MINUS : '+'} ${Math.abs(o.v)}`; complex = true; }
+    else if (o.t === 'mul'){ s = complex ? `${o.v}(${s})` : (isNum ? `${o.v} × ${s}` : `${o.v}${s}`); complex = false; }
+    else if (o.t === 'div'){ s = complex ? `(${s})${isNum ? ' ÷ ' : '/'}${o.v}` : `${s}${isNum ? ' ÷ ' : '/'}${o.v}`; complex = isNum; }
+    else if (o.t === 'pow'){ s = complex ? `(${s})${SUP[o.v]}` : `${s}${SUP[o.v]}`; complex = false; }
+    else { s = complex ? `${ROOT[o.v]}(${s})` : `${ROOT[o.v]}${s}`; complex = false; }
+  }
+  return s;
+}
+const evalOps = (x, ops) => ops.reduce((a, o) =>
+  o.t === 'add' ? a + o.v : o.t === 'mul' ? a * o.v : o.t === 'div' ? a / o.v :
+  o.t === 'pow' ? Math.pow(a, o.v) : (o.v === 2 ? Math.sqrt(a) : Math.cbrt(a)), x);
+const nice = n => fmt(Math.round(n * 1e9) / 1e9);
+
+/* ---------- HTML forms ---------- */
+const isPR = o => o.t === 'pow' || o.t === 'root';
+const rootSym = (n, d = '') => `<span class="rsym"${d}><svg viewBox="0 0 30 100" preserveAspectRatio="none" aria-hidden="true"><path d="M1 60 L8 53 L17 96 L30 0.5"/></svg>${n === 3 ? '<span class="ridx">3</span>' : ''}</span>`;
+function label(o, crossed){
+  if (o.t === 'add'){ const pos = o.v > 0; return ((pos !== crossed) ? '+' : MINUS) + Math.abs(o.v); }
+  if (o.t === 'mul') return (crossed ? '÷' : '×') + o.v;
+  if (o.t === 'div') return (crossed ? '×' : '÷') + o.v;
+  if (o.t === 'pow') return crossed ? ROOT[o.v] : SUP[o.v];
+  return crossed ? SUP[o.v] : ROOT[o.v];
+}
+function renderLeft(name, ops, live){
+  let html = `<span class="tok var">${name}</span>`, complex = false;
+  ops.forEach((o, i) => {
+    const d = live ? ` data-i="${i}" tabindex="0" role="button" aria-label="${t('aria')(label(o,false))}"` : '';
+    if (o.t === 'add'){ html += `<span class="term"${d}><span class="sg add">${o.v < 0 ? MINUS : '+'}</span><span class="tok add">${Math.abs(o.v)}</span></span>`; complex = true; }
+    else if (o.t === 'mul'){ html = `<span class="tok mul"${d}>${o.v}</span>` + (complex ? `<span class="paren">(</span><span class="grp">${html}</span><span class="paren">)</span>` : html); complex = false; }
+    else if (o.t === 'div'){ html = `<span class="frac"><span class="num-row"><span class="grp">${html}</span></span><span class="den"><span class="tok div"${d}>${o.v}</span></span></span>`; complex = false; }
+    else if (o.t === 'pow'){ html = (complex ? `<span class="paren">(</span><span class="grp">${html}</span><span class="paren">)</span>` : `<span class="grp">${html}</span>`) + `<span class="supw"><span class="tok pow"${d}>${o.v}</span></span>`; complex = false; }
+    else { html = `<span class="rad">${rootSym(o.v, d)}<span class="radicand">${html}</span></span>`; complex = false; }
+  });
+  return `<span class="grp">${html}</span>`;
+}
+function wiggle(root){
+  root.querySelectorAll('.tok').forEach((el, n) => {
+    if (el.classList.contains('arrive') || el.classList.contains('pop') || el.closest('.arrive') || el.classList.contains('rsym')) return;
+    if (el.closest('.radicand')){ el.classList.add('w1'); el.style.setProperty('--d', (1.6 + Math.random()).toFixed(2) + 's'); return; }
+    el.classList.add('w' + (1 + (n + Math.floor(Math.random()*3)) % 3));
+    el.style.setProperty('--d', (1.4 + Math.random()*1.2).toFixed(2) + 's');
+    el.style.setProperty('--dl', (-Math.random()*2).toFixed(2) + 's');
+  });
+}
+function numHTML(n, extra = '', pm = false){
+  if (pm) return `<span class="term${extra}"><span class="sg">±</span><span class="tok num">${Math.abs(n)}</span></span>`;
+  return n < 0
+    ? `<span class="term${extra}"><span class="sg">${MINUS}</span><span class="tok num">${-n}</span></span>`
+    : `<span class="tok num${extra}">${n}</span>`;
+}
+function staticEq(el, name, ops, val){
+  el.insertAdjacentHTML('beforeend', `<span class="expr">${renderLeft(name, ops, false)}<span class="eqsign">=</span>${numHTML(val)}</span>`);
+  wiggle(el);
+}
+function burst(stage){
+  if (reduce) return;
+  const cols = ['var(--var)','var(--add)','var(--mul)','var(--eq)','var(--pow)'];
+  for (let i = 0; i < 18; i++){
+    const c = document.createElement('span');
+    c.className = 'confetti';
+    const a = Math.random()*Math.PI*2, r = 1.5 + Math.random()*2.5;
+    c.style.cssText = `background:${cols[i%5]};--tx:${Math.cos(a)*r}em;--ty:${Math.sin(a)*r - .5}em;--r:${Math.random()*720-360}deg`;
+    stage.appendChild(c);
+    setTimeout(() => c.remove(), 1100);
+  }
+}
+
+/* ---------- the board ---------- */
+function createBoard(host, list, opts = {}){
+  host.innerHTML = `
+    <div class="board">
+      <div class="stage"><div class="side left"></div><span class="eqsign">=</span><div class="side right"></div><span class="flipnote"></span></div>
+      <p class="msg" aria-live="polite"></p>
+      <ol class="log"></ol>
+      <div class="ctrl">
+        <button class="btn reset"></button>
+        ${opts.chooser ? '' : '<button class="btn primary next" hidden></button><span class="count"></span>'}
+      </div>
+    </div>`;
+  const $ = s => host.querySelector(s);
+  const stage = $('.stage'), L = $('.left'), R = $('.right'), EQs = $('.eqsign'), note = $('.flipnote'),
+        msg = $('.msg'), log = $('.log'), nextBtn = $('.next'), count = $('.count'), resetBtn = $('.reset');
+  let idx = 0, st, busy = false, timer = null;
+
+  function intro(){ return opts.intro ? opts.intro(st) : t('dragAny'); }
+  function load(i){
+    clearTimeout(timer);
+    idx = i; const q = list[i];
+    st = { name: q.v, ops: q.ops.map(o => ({...o})), val: q.val, pend: null, orig: q.ops, pm: false };
+    busy = false; stage.classList.remove('solved');
+    resetBtn.textContent = t('reset'); if (nextBtn) nextBtn.textContent = t('next');
+    log.innerHTML = ''; addLog(`${exprText(q.v, q.ops)} = ${fmt(q.val)}`);
+    say(intro());
+    if (nextBtn) nextBtn.hidden = true;
+    if (count) count.textContent = t('count')(i+1, list.length);
+    draw();
+  }
+  function say(h, cls = ''){ msg.className = 'msg ' + cls; msg.innerHTML = h; }
+  function addLog(s, cls = ''){ const li = document.createElement('li'); li.textContent = s; if (cls) li.className = cls; log.appendChild(li); }
+
+  function draw(popRight){
+    L.innerHTML = renderLeft(st.name, st.ops, !busy);
+    const p = st.pend;
+    if (!p) R.innerHTML = numHTML(st.val, popRight ? ' pop' : '', st.pm);
+    else if (p.t === 'add') R.innerHTML = `${numHTML(p.from)}<span class="term arrive"><span class="sg add">${p.v > 0 ? MINUS : '+'}</span><span class="tok add">${Math.abs(p.v)}</span></span>`;
+    else if (p.t === 'mul') R.innerHTML = `<span class="frac"><span class="num-row">${numHTML(p.from)}</span><span class="den"><span class="tok mul arrive">${p.v}</span></span></span>`;
+    else if (p.t === 'div') R.innerHTML = `${numHTML(p.from)}<span class="sg mul">×</span><span class="tok mul arrive">${p.v}</span>`;
+    else if (p.t === 'pow') R.innerHTML = `<span class="rad arrive">${rootSym(p.v)}<span class="radicand">${numHTML(p.from)}</span></span>`;
+    else R.innerHTML = `<span class="grp">${numHTML(p.from)}<span class="supw arrive"><span class="tok pow">${p.v}</span></span></span>`;
+    wiggle(stage);
+  }
+  function explain(o){
+    if (o.t === 'add') return o.v > 0 ? t('addPos')(o.v) : t('addNeg')(-o.v);
+    if (isPR(o)) return t(o.t + o.v);
+    return t(o.t)(o.v);
+  }
+  function commit(){
+    const o = st.ops.pop(), from = st.val;
+    let nv, rhsText, pm = false;
+    if (o.t === 'add'){ nv = from - o.v; rhsText = `${fmt(from)} ${o.v > 0 ? MINUS : '+'} ${Math.abs(o.v)}`; }
+    else if (o.t === 'mul'){ nv = from / o.v; rhsText = `${fmt(from)} ÷ ${o.v}`; }
+    else if (o.t === 'div'){ nv = from * o.v; rhsText = `${fmt(from)} × ${o.v}`; }
+    else if (o.t === 'pow'){ nv = Math.round(o.v === 2 ? Math.sqrt(from) : Math.cbrt(from)); pm = o.v === 2; rhsText = `${ROOT[o.v]}${fmt(from)}`; }
+    else { nv = Math.pow(from, o.v); rhsText = `${fmt(from)}${SUP[o.v]}`; }
+    st.pend = { t: o.t, v: o.v, from };
+    addLog(`${exprText(st.name, st.ops)} = ${rhsText}`);
+    busy = true; draw(); say(explain(o));
+    timer = setTimeout(() => {
+      st.val = nv; st.pend = null; st.pm = pm; busy = false;
+      addLog(`${exprText(st.name, st.ops)} = ${pm ? '±' : ''}${fmt(nv)}`);
+      draw(true);
+      if (!st.ops.length) solved();
+      else say(t('keep')(rhsText, fmt(nv), st.name));
+    }, reduce ? 500 : 1300);
+  }
+  function solved(){
+    stage.classList.add('solved'); burst(stage);
+    const res = nice(evalOps(st.val, st.orig));
+    if (st.pm){
+      const neg = `(${MINUS}${st.val})`;
+      addLog(`${t('check')}: ${exprText(fmt(st.val), st.orig, true)} = ${res} ✓ ${t('and')} ${exprText(neg, st.orig, true)} = ${nice(evalOps(-st.val, st.orig))} ✓`, 'chk');
+      say(t('solvedPm')(st.name, fmt(st.val)), 'good');
+    } else {
+      addLog(`${t('check')}: ${exprText(fmt(st.val), st.orig, true)} = ${res} ✓`, 'chk');
+      say(t('solved')(st.name, fmt(st.val)), 'good');
+    }
+    if (nextBtn && idx < list.length - 1) nextBtn.hidden = false;
+    if (count && idx === list.length - 1) count.textContent = t('done')(list.length);
+  }
+
+  let drag = null;
+  L.addEventListener('pointerdown', e => {
+    const el = e.target.closest('[data-i]');
+    if (!el || busy) return;
+    e.preventDefault();
+    const i = +el.dataset.i, o = st.ops[i];
+    const g = document.createElement('span');
+    const kind = o.t === 'add' ? 'add' : isPR(o) ? 'pow' : 'mul';
+    g.className = 'ghost';
+    const setG = c => {
+      if (isPR(o)){
+        const sup = (o.t === 'pow') !== c;
+        g.innerHTML = sup ? `<span class="tok pow gsup">${o.v}</span>` : `<span class="sg pow" style="font-size:1.3em">${ROOT[o.v]}</span>`;
+      } else {
+        const l = label(o, c);
+        g.innerHTML = `<span class="sg ${kind}">${l[0]}</span><span class="tok ${kind}">${l.slice(1)}</span>`;
+      }
+    };
+    setG(false);
+    g.style.fontSize = getComputedStyle(stage).fontSize;
+    document.body.appendChild(g);
+    const r = el.getBoundingClientRect();
+    drag = { el, i, o, g, setG, crossed: false, home: { x: r.left + r.width/2, y: r.top + r.height/2 } };
+    el.classList.add('lifted'); stage.classList.add('dragging');
+    el.setPointerCapture(e.pointerId);
+    move(e);
+  });
+  function move(e){
+    if (!drag) return;
+    drag.g.style.left = e.clientX + 'px'; drag.g.style.top = e.clientY + 'px';
+    const eqr = EQs.getBoundingClientRect();
+    const crossed = e.clientX > eqr.left + eqr.width/2;
+    if (crossed !== drag.crossed){
+      drag.crossed = crossed;
+      drag.setG(crossed);
+      drag.g.classList.remove('crossed'); void drag.g.offsetWidth;
+      if (crossed) drag.g.classList.add('crossed');
+      EQs.classList.toggle('hot', crossed);
+      note.textContent = `${label(drag.o,false)}  →  ${label(drag.o,true)}`;
+      note.classList.toggle('show', crossed);
+    }
+  }
+  L.addEventListener('pointermove', move);
+  function end(){
+    if (!drag) return;
+    const d = drag; drag = null;
+    EQs.classList.remove('hot'); note.classList.remove('show'); stage.classList.remove('dragging');
+    const outer = st.ops.length - 1;
+    if (d.crossed && d.i === outer){ d.g.remove(); commit(); return; }
+    if (d.crossed){
+      say(t('tooClose')(label(d.o,false), st.name, label(st.ops[outer],false)), 'bad');
+      const ft = L.querySelector(`[data-i="${outer}"]`); if (ft){ ft.classList.add('hint'); setTimeout(() => ft.classList.remove('hint'), 2200); }
+    } else say(t('dropOther'));
+    d.g.classList.add('back');
+    requestAnimationFrame(() => { d.g.style.left = d.home.x + 'px'; d.g.style.top = d.home.y + 'px'; });
+    setTimeout(() => { d.g.remove(); d.el.classList.remove('lifted'); }, 320);
+  }
+  L.addEventListener('pointerup', end);
+  L.addEventListener('pointercancel', end);
+  L.addEventListener('keydown', e => {
+    const el = e.target.closest('[data-i]');
+    if (!el || busy || (e.key !== 'Enter' && e.key !== ' ')) return;
+    e.preventDefault();
+    const outer = st.ops.length - 1;
+    if (+el.dataset.i === outer) commit();
+    else say(t('tooCloseK')(st.name, label(st.ops[outer],false)), 'bad');
+  });
+  resetBtn.addEventListener('click', () => load(idx));
+  if (nextBtn) nextBtn.addEventListener('click', () => load(idx + 1));
+  return { load, refresh: () => load(idx) };
+}
+
+/* ---------- content: part A ---------- */
+const hero = document.getElementById('heroEq');
+staticEq(hero, 'x', [{t:'mul',v:2},{t:'add',v:5}], 17);
+staticEq(hero, 'y', [{t:'pow',v:2}], 49);
+staticEq(document.getElementById('r1a'), 'x', [{t:'add',v:4}], 9);
+staticEq(document.getElementById('r1b'), 'x', [], 5);
+staticEq(document.getElementById('qEq'), 'x', [{t:'div',v:2},{t:'add',v:3}], 7);
+
+function chooser(groupId, board){
+  document.querySelectorAll(`#${groupId} .btn`).forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll(`#${groupId} .btn`).forEach(x => x.setAttribute('aria-pressed', x === b));
+    board.load(+b.dataset.k);
+  }));
+}
+const lab = createBoard(document.getElementById('lab'), [
+  { v:'x', ops:[{t:'add',v:4}],  val:9 },
+  { v:'x', ops:[{t:'add',v:-6}], val:2 },
+  { v:'x', ops:[{t:'mul',v:3}],  val:12 },
+  { v:'y', ops:[{t:'div',v:2}],  val:5 },
+], { chooser:true, intro: s => t('dragThis')(label(s.ops[0],false)) });
+chooser('labChips', lab);
+
+const prac = createBoard(document.getElementById('prac'), [
+  { v:'k', ops:[{t:'add',v:7}],  val:15 },
+  { v:'m', ops:[{t:'add',v:-3}], val:10 },
+  { v:'y', ops:[{t:'mul',v:4}],  val:28 },
+  { v:'n', ops:[{t:'div',v:5}],  val:6 },
+  { v:'x', ops:[{t:'add',v:9}],  val:4 },
+  { v:'p', ops:[{t:'mul',v:6}],  val:42 },
+]);
+
+const frac = createBoard(document.getElementById('frac'), [
+  { v:'x', ops:[{t:'div',v:2},{t:'add',v:3}],  val:7 },
+  { v:'y', ops:[{t:'div',v:4},{t:'add',v:2}],  val:5 },
+  { v:'p', ops:[{t:'div',v:3},{t:'add',v:-1}], val:4 },
+  { v:'x', ops:[{t:'add',v:3},{t:'div',v:2}],  val:5 },
+  { v:'x', ops:[{t:'mul',v:2},{t:'div',v:3}],  val:4 },
+  { v:'a', ops:[{t:'add',v:-1},{t:'div',v:3},{t:'add',v:2}], val:6 },
+  { v:'x', ops:[{t:'mul',v:3},{t:'div',v:4},{t:'add',v:1}], val:7 },
+], { intro: s => s.ops.length > 2 ? t('fracIntro3') : t('fracIntro') });
+
+/* ---------- content: part B ---------- */
+const lab2 = createBoard(document.getElementById('lab2'), [
+  { v:'x', ops:[{t:'pow',v:2}],  val:49 },
+  { v:'y', ops:[{t:'pow',v:3}],  val:64 },
+  { v:'k', ops:[{t:'root',v:2}], val:9 },
+  { v:'m', ops:[{t:'root',v:3}], val:5 },
+], { chooser:true, intro: s => t('dragThis')(label(s.ops[0],false)) });
+chooser('labChips2', lab2);
+
+const mixb = createBoard(document.getElementById('mixb'), [
+  { v:'x', ops:[{t:'pow',v:2},{t:'add',v:5}],  val:54 },
+  { v:'y', ops:[{t:'pow',v:3},{t:'mul',v:2}],  val:54 },
+  { v:'p', ops:[{t:'root',v:2},{t:'add',v:-3}], val:5 },
+  { v:'x', ops:[{t:'pow',v:2},{t:'div',v:4}],  val:9 },
+  { v:'k', ops:[{t:'root',v:3},{t:'mul',v:3},{t:'add',v:1}], val:13 },
+  { v:'m', ops:[{t:'pow',v:3},{t:'div',v:2},{t:'add',v:-1}], val:31 },
+], { intro: () => t('mixIntro') });
+
+/* power explorer */
+let expN = 5, expP = 2;
+const expEq = document.getElementById('expEq'), expSay = document.getElementById('expSay'),
+      expVis = document.getElementById('expVis'), expRoot = document.getElementById('expRoot');
+function renderExplorer(){
+  const n = expN, p = expP, r = Math.pow(n, p);
+  document.getElementById('expN').textContent = n;
+  document.getElementById('expMinus').disabled = n <= 1;
+  document.getElementById('expPlus').disabled = n >= (p === 2 ? 12 : 6);
+  const factors = Array(p).fill(`<span class="base">${n}</span>`).join(' <span class="op">×</span> ');
+  expEq.innerHTML = `<span class="base">${n}</span><span class="pw">${p}</span> <span class="op">=</span> ${factors} <span class="op">=</span> <span class="res">${r}</span>`;
+  expSay.innerHTML = p === 2 ? t('sqSay')(n, r) : t('cuSay')(n, r);
+  expRoot.innerHTML = p === 2 ? t('sqRoot')(n, r) : t('cuRoot')(n, r);
+  const wrapW = Math.max(220, expVis.clientWidth || 300);
+  let html = '';
+  if (p === 2){
+    const s = Math.max(10, Math.min(30, Math.floor(Math.min(wrapW, 380) / n) - 2));
+    html = `<div class="tiles" style="--s:${s}px;grid-template-columns:repeat(${n},${s}px)">` +
+      Array.from({length: n*n}, (_, k) => `<i style="animation-delay:${Math.min(k*12, 900)}ms"></i>`).join('') + '</div>';
+  } else {
+    const s = Math.max(8, Math.min(18, Math.floor(130 / n) - 2));
+    for (let L = 1; L <= n; L++){
+      html += `<div class="layerbox"><div class="tiles" style="--s:${s}px;grid-template-columns:repeat(${n},${s}px)">` +
+        Array.from({length: n*n}, (_, k) => `<i style="animation-delay:${Math.min((L-1)*120 + k*6, 1200)}ms"></i>`).join('') +
+        `</div><small>${t('layer')(L)}</small></div>`;
+    }
+  }
+  expVis.innerHTML = html;
+}
+document.getElementById('expMinus').addEventListener('click', () => { if (expN > 1){ expN--; renderExplorer(); } });
+document.getElementById('expPlus').addEventListener('click', () => { if (expN < (expP === 2 ? 12 : 6)){ expN++; renderExplorer(); } });
+document.querySelectorAll('#expPow .btn').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('#expPow .btn').forEach(x => x.setAttribute('aria-pressed', x === b));
+  expP = +b.dataset.p; if (expP === 3 && expN > 6) expN = 6; renderExplorer();
+}));
+
+/* ---------- quiz ---------- */
+const qMsg = document.getElementById('qMsg'), qReveal = document.getElementById('qReveal');
+let qLast = null;
+function showQuiz(){
+  if (!qLast) return;
+  qMsg.className = 'msg ' + (qLast === '3' ? 'good' : 'bad');
+  qMsg.innerHTML = qLast === '3' ? t('qRight') : t('qWrong');
+}
+document.querySelectorAll('#qAns .btn').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('#qAns .btn').forEach(x => x.classList.remove('right','wrong'));
+  void b.offsetWidth;
+  b.classList.add(b.dataset.a === '3' ? 'right' : 'wrong');
+  qLast = b.dataset.a; showQuiz();
+  qReveal.hidden = false;
+}));
+
+/* ---------- language switch ---------- */
+const boards = [lab, prac, frac, lab2, mixb];
+function applyLang(){
+  document.documentElement.lang = lang === 'ms' ? 'ms' : 'en';
+  document.querySelectorAll('[data-t]').forEach(el => { el.innerHTML = t(el.dataset.t); });
+  ['labChips','labChips2'].forEach(id => document.getElementById(id).setAttribute('aria-label', t('chipsAria')));
+  document.querySelectorAll('.lang button').forEach(b => b.setAttribute('aria-pressed', b.dataset.lang === lang));
+  renderExplorer(); showQuiz();
+  boards.forEach(b => b.refresh());
+  document.getElementById('chal').href = 'https://claude.ai/artifact/4uVQ8Lsm6iMo8TATVFpR91#' + lang;
+}
+document.querySelectorAll('.lang button').forEach(b => b.addEventListener('click', () => {
+  if (b.dataset.lang === lang) return;
+  lang = b.dataset.lang;
+  try { localStorage.setItem('gxa-lang', lang); } catch(e){}
+  applyLang();
+}));
+applyLang();
+})();
+
+</script>
+
+</body></html>
