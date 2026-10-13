@@ -97,7 +97,32 @@ body{margin:0;overflow:hidden;background:#5a3a1c}
 #blok .m1{background:#e0a91b}#blok .m2{background:#9aa3ad}#blok .m3{background:#c27a3e}
 #blok .lbstat{font-size:.9rem;color:var(--tinta-lembut);margin:10px 0 0}
 #blok .lbstat.okk{color:var(--hijau);font-weight:600}
+#blok .lbstat.upd{display:flex;align-items:center;gap:7px;color:#8a6d45;font-weight:600}
+#blok .lbstat.upd::before{content:"";flex:none;width:.95em;height:.95em;border-radius:50%;border:2.5px solid #e6d7b0;border-top-color:#2f9e5f;animation:lbspin .8s linear infinite}
+#blok .lbstat.warn{color:#b5542b}
+#blok .lbwrap.stale{opacity:.72}
+#blok .lbwrap.fresh{animation:lbfresh .9s ease-out}
+@keyframes lbspin{to{transform:rotate(360deg)}}
+@keyframes lbfresh{0%{box-shadow:0 0 0 4px rgba(47,158,95,.55)}100%{box-shadow:0 0 0 0 rgba(47,158,95,0)}}
+@media (prefers-reduced-motion: reduce){#blok .lbstat.upd::before{animation:none}#blok .lbwrap.fresh{animation:none}}
 #blok .rank{font-weight:600;color:var(--tinta);margin:12px 0 0}
+/* side leaderboard on the main menu */
+#blok #overlay{gap:16px;flex-wrap:wrap;align-content:center;overflow:auto}
+#blok #overlay.menu #sStart{flex:1 1 440px;max-width:540px}
+#blok #sSide{flex:1 1 300px;max-width:380px;text-align:left;padding:20px 18px 18px}
+#blok #sSide h1{font-size:1.45rem;margin:0;text-align:center}
+#blok #sSide .tabs button{padding:5px 11px;font-size:.85rem}
+#blok #sSide .lb .k{display:none}
+#blok #sSide .lb td{padding:6px 8px}
+#blok .trophy{display:block;text-align:center;font-size:.8rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#c9971c;margin-bottom:2px}
+#blok .side-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px}
+#blok .side-foot .lbstat{margin:0;font-size:.8rem}
+#blok .side-foot .sbtn{margin:0;padding:6px 12px;font-size:.82rem;flex:none}
+@media (max-width:900px){
+  #blok #overlay.menu{align-content:flex-start;pointer-events:auto}
+  #blok #overlay.menu .card{max-height:none}
+  #blok #sSide{max-width:540px}
+}
 @media (max-width:520px){#blok .who{grid-template-columns:1fr}#blok .lb .k{display:none}}
 </style>
 </head>
@@ -137,7 +162,18 @@ body{margin:0;overflow:hidden;background:#5a3a1c}
             <button class="lv" type="button" data-lv="1"><span class="dot" style="background:#3fae6a">1</span><span class="t"><b data-g="l1"></b><span data-g="l1d"></span></span></button>
             <button class="lv" type="button" data-lv="2"><span class="dot" style="background:#f08a24">2</span><span class="t"><b data-g="l2"></b><span data-g="l2d"></span></span></button>
             <button class="lv" type="button" data-lv="3"><span class="dot" style="background:#7e57c2">3</span><span class="t"><b data-g="l3"></b><span data-g="l3d"></span></span></button>
-            <button class="sbtn" type="button" id="bBoard" data-g="boardBtn"></button>
+          </section>
+          <section class="card" id="sSide" aria-labelledby="sideTitle">
+            <span class="trophy" aria-hidden="true">★ Top 10 ★</span>
+            <h1 id="sideTitle" data-g="board"></h1>
+            <div class="tabs" id="sideTabs" role="group">
+              <button type="button" data-lv="1"></button><button type="button" data-lv="2"></button><button type="button" data-lv="3"></button>
+            </div>
+            <div class="lbwrap" id="sideList" hidden></div>
+            <div class="side-foot">
+              <p class="lbstat" id="sideStat"></p>
+              <button class="sbtn" type="button" id="bSideRefresh" data-g="refresh"></button>
+            </div>
           </section>
           <section class="card" id="sBoard" hidden>
             <h1 data-g="board"></h1>
@@ -211,7 +247,7 @@ body{margin:0;overflow:hidden;background:#5a3a1c}
       sending:'Menghantar markah anda…', sent:'Markah anda telah disimpan dalam papan pendahulu.',
       sentLocal:'Markah anda telah disimpan pada peranti ini.',
       sendErr:'Markah tidak dapat dihantar ke papan pendahulu kongsi. Markah disimpan pada peranti ini sahaja.',
-      rankMsg:(r,l)=>`Anda berada di tempat ke-${r} bagi Tahap ${l}.`, you:'anda'
+      rankMsg:(r,l)=>`Anda berada di tempat ke-${r} bagi Tahap ${l}.`, you:'anda', refresh:'Muat semula', updating:'Mengemas kini papan pendahulu…', stale:'Papan pendahulu tidak dapat dikemas kini. Paparan ini mungkin bukan yang terkini.', localShort:'Markah pada peranti ini sahaja.', onlineShort:'Markah terbaik setiap pemain.'
     },
     en: {
       score:'Score', time:'Time', goal:'Goal', skip:'Skip (−5 s)', pause:'Pause', soundOn:'Sound: on', soundOff:'Sound: off',
@@ -241,7 +277,7 @@ body{margin:0;overflow:hidden;background:#5a3a1c}
       sending:'Sending your score…', sent:'Your score has been saved to the leaderboard.',
       sentLocal:'Your score has been saved on this device.',
       sendErr:'Your score could not be sent to the shared leaderboard. It is saved on this device only.',
-      rankMsg:(r,l)=>`You are in position ${r} for Level ${l}.`, you:'you'
+      rankMsg:(r,l)=>`You are in position ${r} for Level ${l}.`, you:'you', refresh:'Refresh', updating:'Updating the leaderboard…', stale:'The leaderboard could not be updated. This view may not be the latest.', localShort:'Scores on this device only.', onlineShort:'Best score of each player.'
     }
   };
   let LANG = 'ms';
@@ -276,8 +312,19 @@ body{margin:0;overflow:hidden;background:#5a3a1c}
       localStorage.setItem(LB_KEY, JSON.stringify(rows.slice(-300)));
     } catch (e) {}
   }
+  const CACHE_KEY = 'blok-algebra-cache-v1';
+  let lbCache = {};
+  try { lbCache = JSON.parse(localStorage.getItem(CACHE_KEY) || '{}') || {}; } catch (e) { lbCache = {}; }
   const LB = {
     shared: !!SHEET_URL,
+    cached(level) {
+      if (!SHEET_URL) return bestPerPlayer(localRows().filter((r) => r.level === level)).slice(0, 20);
+      return lbCache[level] ? lbCache[level].slice() : null;
+    },
+    remember(level, rows) {
+      lbCache[level] = rows;
+      try { localStorage.setItem(CACHE_KEY, JSON.stringify(lbCache)); } catch (e) {}
+    },
     async submit(entry) {
       localAdd(entry);
       if (!SHEET_URL) return 'local';
@@ -292,9 +339,28 @@ body{margin:0;overflow:hidden;background:#5a3a1c}
       const r = await fetch(SHEET_URL + (SHEET_URL.indexOf('?') > -1 ? '&' : '?') + 'level=' + level + '&t=' + Date.now());
       const j = await r.json();
       if (!j || !j.ok) throw new Error('bad');
-      return bestPerPlayer(j.rows.map((x) => ({ name: x.name, kelas: x.kelas, score: +x.score, solved: +x.solved, time: +x.time, level: level })));
+      const rows = bestPerPlayer(j.rows.map((x) => ({ name: x.name, kelas: x.kelas, score: +x.score, solved: +x.solved, time: +x.time, level: level })));
+      LB.remember(level, rows);
+      return rows;
     }
   };
+  // Show rows (old or new) and a status line. mode: 'updating' | 'stale' | 'ok'
+  function paintBoard(listEl, statEl, rows, mode, meKey, limit, okText) {
+    statEl.className = 'lbstat' + (mode === 'updating' ? ' upd' : mode === 'stale' || mode === 'error' ? ' warn' : '');
+    if (rows && rows.length) {
+      const wasStale = listEl.classList.contains('stale');
+      listEl.innerHTML = tableHTML(rows, meKey, limit);
+      listEl.hidden = false;
+      listEl.classList.toggle('stale', mode === 'updating');
+      if (wasStale && mode === 'ok') { listEl.classList.remove('fresh'); void listEl.offsetWidth; listEl.classList.add('fresh'); }
+    } else {
+      listEl.hidden = true; listEl.classList.remove('stale');
+    }
+    if (mode === 'updating') statEl.textContent = rows ? g('updating') : g('loading');
+    else if (mode === 'stale') statEl.textContent = g('stale');
+    else if (mode === 'error') statEl.textContent = g('loadErr');
+    else statEl.textContent = rows && rows.length ? okText : g('empty');
+  }
   function tableHTML(rows, meKey, limit) {
     const head = '<table class="lb"><thead><tr><th class="r">' + g('hRank') + '</th><th>' + g('hName') + '</th><th class="k">' + g('hClass') + '</th><th class="s">' + g('hScore') + '</th></tr></thead><tbody>';
     const body = rows.slice(0, limit).map((r, i) => {
@@ -951,7 +1017,13 @@ body{margin:0;overflow:hidden;background:#5a3a1c}
   canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 
   const screens = ['sStart', 'sPause', 'sResult', 'sBoard'];
-  function showScreen(id) { screens.forEach((s) => { $(s).hidden = (s !== id); }); $('overlay').hidden = !id; }
+  function showScreen(id) {
+    screens.forEach((s) => { $(s).hidden = (s !== id); });
+    $('sSide').hidden = id !== 'sStart';
+    $('overlay').classList.toggle('menu', id === 'sStart');
+    $('overlay').hidden = !id;
+    if (id === 'sStart') { $('overlay').scrollTop = 0; loadSide(sideLevel); }
+  }
   function releaseDrag() { if (drag) { drag.b.held = false; drag = null; } }
 
   function startGame(lv) {
@@ -1001,10 +1073,12 @@ body{margin:0;overflow:hidden;background:#5a3a1c}
   function renderResultBoard() {
     const st = $('rStat'), list = $('rList'), rk = $('rRank');
     if (!rState) { st.textContent = ''; list.hidden = true; rk.hidden = true; return; }
-    st.className = 'lbstat' + (rState.status === 'sent' || rState.status === 'local' ? ' okk' : '');
+    st.className = 'lbstat' + (rState.status === 'sending' ? ' upd' : rState.status === 'sent' || rState.status === 'local' ? ' okk' : ' warn');
     st.textContent = rState.status === 'sending' ? g('sending') : rState.status === 'sent' ? g('sent') : rState.status === 'local' ? g('sentLocal') : g('sendErr');
     if (rState.rows) {
       const me = pkey(player.name, player.kelas);
+      list.classList.toggle('stale', !!rState.updating);
+      if (rState.updating) { rk.hidden = true; list.innerHTML = tableHTML(rState.rows, me, 5); list.hidden = false; return; }
       const pos = rState.rows.findIndex((r) => pkey(r.name, r.kelas) === me);
       rk.hidden = pos < 0;
       if (pos >= 0) rk.textContent = g('rankMsg')(pos + 1, rState.level);
@@ -1015,35 +1089,33 @@ body{margin:0;overflow:hidden;background:#5a3a1c}
   async function submitResult() {
     const lv = level;
     const entry = { name: player.name, kelas: player.kelas, level: lv, score: score, solved: solved, wrong: wrongN, time: Date.now() };
-    rState = { status: 'sending', rows: null, level: lv };
+    rState = { status: 'sending', rows: LB.shared ? LB.cached(lv) : null, level: lv, updating: LB.shared };
     renderResultBoard();
     const status = await LB.submit(entry);
     if (!rState || rState.level !== lv) return;
     rState.status = status;
-    try { rState.rows = await LB.top(lv); } catch (e) { rState.rows = null; }
+    try { rState.rows = await LB.top(lv); } catch (e) { /* keep the older rows */ }
+    rState.updating = false;
     if (state === 'over') renderResultBoard();
   }
-  let boardLevel = 1, boardFrom = 'sStart', boardRows = null, boardErr = false, boardReq = 0;
+  let boardLevel = 1, boardFrom = 'sStart', boardRows = null, boardMode = 'updating', boardReq = 0;
   function renderBoard() {
     document.querySelectorAll('#lbTabs button').forEach((b) => {
       b.textContent = g('lv')(+b.dataset.lv);
       b.setAttribute('aria-pressed', String(+b.dataset.lv === boardLevel));
     });
     $('lbTabs').setAttribute('aria-label', g('board'));
-    const list = $('lbList'), st = $('lbStat');
-    if (boardErr) { list.innerHTML = ''; list.hidden = true; st.textContent = g('loadErr'); return; }
-    if (!boardRows) { list.hidden = true; st.textContent = g('loading'); return; }
-    if (!boardRows.length) { list.hidden = true; st.textContent = g('empty'); return; }
-    list.hidden = false;
-    list.innerHTML = tableHTML(boardRows, pkey(player.name, player.kelas), 20);
-    st.textContent = LB.shared ? g('onlineNote') : g('localNote');
+    paintBoard($('lbList'), $('lbStat'), boardRows, boardMode, pkey(player.name, player.kelas), 20,
+      LB.shared ? g('onlineNote') : g('localNote'));
   }
   async function loadBoard(lv) {
-    boardLevel = lv; boardRows = null; boardErr = false;
+    boardLevel = lv; boardRows = LB.cached(lv);
     const req = ++boardReq;
+    boardMode = LB.shared ? 'updating' : 'ok';
     renderBoard();
-    try { const rows = await LB.top(lv); if (req !== boardReq) return; boardRows = rows; }
-    catch (e) { if (req !== boardReq) return; boardErr = true; }
+    if (!LB.shared) return;
+    try { const rows = await LB.top(lv); if (req !== boardReq) return; boardRows = rows; boardMode = 'ok'; }
+    catch (e) { if (req !== boardReq) return; boardMode = boardRows ? 'stale' : 'error'; }
     renderBoard();
   }
   function openBoard(from) {
@@ -1064,6 +1136,30 @@ body{margin:0;overflow:hidden;background:#5a3a1c}
     return true;
   }
 
+  /* ---- side leaderboard on the main menu ---- */
+  let sideLevel = 1, sideRows = null, sideMode = 'updating', sideReq = 0;
+  function renderSide() {
+    document.querySelectorAll('#sideTabs button').forEach((b) => {
+      b.textContent = g('lv')(+b.dataset.lv);
+      b.setAttribute('aria-pressed', String(+b.dataset.lv === sideLevel));
+    });
+    $('sideTabs').setAttribute('aria-label', g('board'));
+    paintBoard($('sideList'), $('sideStat'), sideRows, sideMode, player.name ? pkey(player.name, player.kelas) : '', 10,
+      LB.shared ? g('onlineShort') : g('localShort'));
+  }
+  async function loadSide(lv) {
+    if (lv !== sideLevel || !sideRows) sideRows = LB.cached(lv);
+    sideLevel = lv;
+    const req = ++sideReq;
+    sideMode = LB.shared ? 'updating' : 'ok';
+    renderSide();
+    if (!LB.shared) return;
+    try { const rows = await LB.top(lv); if (req !== sideReq) return; sideRows = rows; sideMode = 'ok'; }
+    catch (e) { if (req !== sideReq) return; sideMode = sideRows ? 'stale' : 'error'; }
+    renderSide();
+  }
+  setInterval(() => { if (state === 'menu' && LB.shared && !document.hidden) loadSide(sideLevel); }, 30000);
+
   function toMenu() {
     releaseDrag();
     state = 'menu'; phase = 'ask'; q = null; slots = []; layoutInfo = null;
@@ -1077,7 +1173,8 @@ body{margin:0;overflow:hidden;background:#5a3a1c}
   document.querySelectorAll('#blok .lv').forEach((b) => b.addEventListener('click', () => { if (readPlayer()) startGame(parseInt(b.getAttribute('data-lv'), 10)); }));
   $('pName').value = player.name; $('pClass').value = player.kelas;
   $('pName').addEventListener('input', () => { if ($('pName').value.trim()) { $('pErr').hidden = true; $('pName').classList.remove('bad'); } });
-  $('bBoard').addEventListener('click', () => openBoard('sStart'));
+  document.querySelectorAll('#sideTabs button').forEach((b) => b.addEventListener('click', () => loadSide(+b.dataset.lv)));
+  $('bSideRefresh').addEventListener('click', () => loadSide(sideLevel));
   $('bBoard2').addEventListener('click', () => openBoard('sResult'));
   $('bBack').addEventListener('click', () => showScreen(boardFrom));
   document.querySelectorAll('#lbTabs button').forEach((b) => b.addEventListener('click', () => loadBoard(+b.dataset.lv)));
@@ -1113,6 +1210,7 @@ body{margin:0;overflow:hidden;background:#5a3a1c}
     renderResult();
     renderResultBoard();
     renderBoard();
+    renderSide();
     $('pName').placeholder = g('namePh'); $('pClass').placeholder = g('kelasPh');
     if (!$('pErr').hidden) $('pErr').textContent = g('needName');
     if (q && state !== 'menu') layoutQuestion();
