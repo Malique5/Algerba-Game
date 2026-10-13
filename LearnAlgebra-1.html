@@ -895,7 +895,7 @@ function applyLang(){
   document.querySelectorAll('.lang button').forEach(b => b.setAttribute('aria-pressed', b.dataset.lang === lang));
   renderExplorer(); showQuiz();
   boards.forEach(b => b.refresh());
-  document.getElementById('chal').href = 'https://malique5.github.io/Algerba-Game/blok-algebra.html' + lang;
+  document.getElementById('chal').href = 'https://malique5.github.io/Algerba-Game/blok-algebra.html#' + lang;
 }
 document.querySelectorAll('.lang button').forEach(b => b.addEventListener('click', () => {
   if (b.dataset.lang === lang) return;
