@@ -1,9 +1,15 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Algebra Challenge</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap">
 <style>
-:root{color-scheme:light;background:#5a3a1c}
+:root{color-scheme:light;background:#5a3a1c;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none!important}
 html,body{height:100%}
 body{margin:0;overflow:hidden;background:#5a3a1c}
 #blok{height:100%}
@@ -64,7 +70,38 @@ body{margin:0;overflow:hidden;background:#5a3a1c}
 }
 
 @media (prefers-reduced-motion: reduce){#blok .lv{transition:none}}
+/* name entry and leaderboard */
+#blok .who{display:grid;grid-template-columns:1.4fr 1fr;gap:10px;margin-top:16px;text-align:left}
+#blok .who label{font-size:.85rem;font-weight:600;color:var(--tinta-lembut);display:flex;flex-direction:column;gap:4px}
+#blok .who input{font:inherit;font-size:1rem;padding:9px 12px;border-radius:12px;border:2px solid #e6d7b0;background:#fff;color:var(--tinta);width:100%;min-width:0}
+#blok .who input:focus{outline:none;border-color:var(--hijau)}
+#blok .who input.bad{border-color:#d94a38}
+#blok .err{color:#c0392b;font-size:.9rem;margin:6px 0 0;text-align:left;min-height:0}
+#blok .sbtn{font:inherit;font-weight:600;font-size:.95rem;cursor:pointer;color:var(--tinta);background:#efe2bf;border:0;border-radius:999px;padding:9px 18px;margin-top:14px;box-shadow:0 3px 0 rgba(0,0,0,.15)}
+#blok .sbtn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.15)}
+#blok .sbtn:focus-visible,#blok .tabs button:focus-visible{outline:3px solid #2b5fa8;outline-offset:2px}
+#blok .tabs{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:12px 0 4px}
+#blok .tabs button{font:inherit;font-weight:600;font-size:.92rem;border:2px solid #e6d7b0;background:#fff;border-radius:999px;padding:6px 14px;cursor:pointer;color:var(--tinta)}
+#blok .tabs button[aria-pressed="true"]{background:var(--tinta);color:var(--kertas);border-color:var(--tinta)}
+#blok .lbwrap{background:#fff;border:2px solid #e6d7b0;border-radius:16px;margin-top:10px;overflow:hidden}
+#blok .lb{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;text-align:left;font-size:.98rem}
+#blok .lb th{font-size:.76rem;color:var(--tinta-lembut);font-weight:600;padding:8px 10px;border-bottom:2px solid #efe4c6;text-transform:uppercase;letter-spacing:.05em}
+#blok .lb td{padding:7px 10px;border-bottom:1px solid #f3ead2}
+#blok .lb tr:last-child td{border-bottom:0}
+#blok .lb .r{width:2.6em;font-weight:700;text-align:center}
+#blok .lb .s{text-align:right;font-weight:700}
+#blok .lb .n{overflow-wrap:anywhere}
+#blok .lb .k{color:var(--tinta-lembut);font-size:.88rem}
+#blok .lb tr.me td{background:#e3f5e9}
+#blok .medal{display:inline-grid;place-items:center;width:1.7em;height:1.7em;border-radius:50%;color:#fff;font-size:.85rem;box-shadow:0 2px 0 rgba(0,0,0,.18)}
+#blok .m1{background:#e0a91b}#blok .m2{background:#9aa3ad}#blok .m3{background:#c27a3e}
+#blok .lbstat{font-size:.9rem;color:var(--tinta-lembut);margin:10px 0 0}
+#blok .lbstat.okk{color:var(--hijau);font-weight:600}
+#blok .rank{font-weight:600;color:var(--tinta);margin:12px 0 0}
+@media (max-width:520px){#blok .who{grid-template-columns:1fr}#blok .lb .k{display:none}}
 </style>
+</head>
+<body>
 <div id="blok">
       <div class="gstage" id="gstage">
         <canvas id="c"></canvas>
@@ -91,10 +128,25 @@ body{margin:0;overflow:hidden;background:#5a3a1c}
             <h1 data-g="title"></h1>
             <p class="lead" data-g="glead"></p>
             <ol class="steps"><li data-g="s1"></li><li data-g="s2"></li><li data-g="s3"></li></ol>
+            <div class="who">
+              <label for="pName"><span data-g="name"></span><input id="pName" type="text" maxlength="20" autocomplete="off" spellcheck="false"></label>
+              <label for="pClass"><span data-g="kelas"></span><input id="pClass" type="text" maxlength="12" autocomplete="off" spellcheck="false"></label>
+            </div>
+            <p class="err" id="pErr" role="alert" hidden></p>
             <h2 data-g="choose"></h2>
             <button class="lv" type="button" data-lv="1"><span class="dot" style="background:#3fae6a">1</span><span class="t"><b data-g="l1"></b><span data-g="l1d"></span></span></button>
             <button class="lv" type="button" data-lv="2"><span class="dot" style="background:#f08a24">2</span><span class="t"><b data-g="l2"></b><span data-g="l2d"></span></span></button>
             <button class="lv" type="button" data-lv="3"><span class="dot" style="background:#7e57c2">3</span><span class="t"><b data-g="l3"></b><span data-g="l3d"></span></span></button>
+            <button class="sbtn" type="button" id="bBoard" data-g="boardBtn"></button>
+          </section>
+          <section class="card" id="sBoard" hidden>
+            <h1 data-g="board"></h1>
+            <div class="tabs" id="lbTabs" role="group">
+              <button type="button" data-lv="1"></button><button type="button" data-lv="2"></button><button type="button" data-lv="3"></button>
+            </div>
+            <div class="lbwrap" id="lbList"></div>
+            <p class="lbstat" id="lbStat"></p>
+            <div class="row"><button class="btn alt" id="bBack" type="button" data-g="back"></button></div>
           </section>
           <section class="card" id="sPause" hidden>
             <h1 data-g="paused"></h1>
@@ -113,10 +165,14 @@ body{margin:0;overflow:hidden;background:#5a3a1c}
               <div><b id="rBad">0</b><span data-g="bad"></span></div>
             </div>
             <p class="note" id="rBest"></p>
+            <p class="rank" id="rRank" hidden></p>
+            <div class="lbwrap" id="rList" hidden></div>
+            <p class="lbstat" id="rStat"></p>
             <div class="row">
               <button class="btn" id="bAgain" type="button" data-g="again"></button>
               <button class="btn alt" id="bMenu" type="button" data-g="change"></button>
             </div>
+            <button class="sbtn" type="button" id="bBoard2" data-g="boardBtn"></button>
           </section>
         </div>
       </div>
@@ -143,7 +199,19 @@ body{margin:0;overflow:hidden;background:#5a3a1c}
       q:'Soalan', simp:'Permudahkan ungkapan', coef:'Cari pekali yang hilang', compv:'Lengkapkan pemboleh ubah', solve:'Selesaikan persamaan',
       sub_:'Gantikan', expand:'Kembangkan ungkapan', like:'Gabungkan sebutan serupa', fact:'Faktorkan ungkapan',
       right:'Betul! +', streak:'Berturut-turut ×', reached:'Sasaran dicapai!', retry:'Cuba lagi', skipped:'Dilangkau',
-      aria:'Meja kayu dengan blok algebra dan persamaan yang belum lengkap'
+      aria:'Meja kayu dengan blok algebra dan persamaan yang belum lengkap',
+      name:'Nama', kelas:'Kelas (pilihan)', namePh:'Tulis nama anda', kelasPh:'Contoh: 4 Bestari',
+      needName:'Sila tulis nama anda sebelum memilih tahap.',
+      board:'Papan Pendahulu', boardBtn:'Lihat papan pendahulu', back:'Kembali', lv:(n)=>`Tahap ${n}`,
+      hRank:'No.', hName:'Nama', hClass:'Kelas', hScore:'Markah',
+      loading:'Memuatkan papan pendahulu…', empty:'Belum ada markah bagi tahap ini. Jadilah pemain pertama!',
+      loadErr:'Papan pendahulu tidak dapat dimuatkan. Semak sambungan Internet anda.',
+      localNote:'Papan pendahulu ini hanya menyimpan markah yang dimainkan pada peranti ini.',
+      onlineNote:'Papan pendahulu ini dikongsi oleh semua pemain. Hanya markah terbaik setiap pemain dipaparkan.',
+      sending:'Menghantar markah anda…', sent:'Markah anda telah disimpan dalam papan pendahulu.',
+      sentLocal:'Markah anda telah disimpan pada peranti ini.',
+      sendErr:'Markah tidak dapat dihantar ke papan pendahulu kongsi. Markah disimpan pada peranti ini sahaja.',
+      rankMsg:(r,l)=>`Anda berada di tempat ke-${r} bagi Tahap ${l}.`, you:'anda'
     },
     en: {
       score:'Score', time:'Time', goal:'Goal', skip:'Skip (−5 s)', pause:'Pause', soundOn:'Sound: on', soundOff:'Sound: off',
@@ -161,7 +229,19 @@ body{margin:0;overflow:hidden;background:#5a3a1c}
       q:'Question', simp:'Simplify the expression', coef:'Find the missing coefficient', compv:'Complete the variable', solve:'Solve the equation',
       sub_:'Substitute', expand:'Expand the expression', like:'Combine like terms', fact:'Factorise the expression',
       right:'Correct! +', streak:'Streak ×', reached:'Goal reached!', retry:'Try again', skipped:'Skipped',
-      aria:'Wooden table with algebra blocks and an unfinished equation'
+      aria:'Wooden table with algebra blocks and an unfinished equation',
+      name:'Name', kelas:'Class (optional)', namePh:'Type your name', kelasPh:'Example: 4 Bestari',
+      needName:'Please type your name before choosing a level.',
+      board:'Leaderboard', boardBtn:'View leaderboard', back:'Back', lv:(n)=>`Level ${n}`,
+      hRank:'No.', hName:'Name', hClass:'Class', hScore:'Score',
+      loading:'Loading the leaderboard…', empty:'No scores for this level yet. Be the first player!',
+      loadErr:'The leaderboard could not be loaded. Check your Internet connection.',
+      localNote:'This leaderboard only keeps scores played on this device.',
+      onlineNote:'This leaderboard is shared by all players. Only each player’s best score is shown.',
+      sending:'Sending your score…', sent:'Your score has been saved to the leaderboard.',
+      sentLocal:'Your score has been saved on this device.',
+      sendErr:'Your score could not be sent to the shared leaderboard. It is saved on this device only.',
+      rankMsg:(r,l)=>`You are in position ${r} for Level ${l}.`, you:'you'
     }
   };
   let LANG = 'ms';
@@ -169,6 +249,64 @@ body{margin:0;overflow:hidden;background:#5a3a1c}
   { const h = (location.hash || '').slice(1); if (h === 'ms' || h === 'en') LANG = h; }
   const gl = () => LANG;
   const g = (k) => GT[gl()][k];
+
+  /* ================= Papan pendahulu =================
+     Tampal URL aplikasi web Google Apps Script di bawah untuk papan pendahulu kongsi.
+     Jika dibiarkan kosong, markah hanya disimpan pada peranti pemain.
+     Paste the Google Apps Script web app URL below for a shared leaderboard.
+     If left empty, scores are only kept on each player's device. */
+  const SHEET_URL = 'https://script.google.com/macros/s/AKfycbxvDT6tbHZmLUCZUqYIk5oFEfCeLT0z1YEdNDusm3WPSopwFLa6bk5cQxPJVvP54v8HBA/exec';
+
+  const LB_KEY = 'blok-algebra-papan-v1';
+  const esc = (t) => String(t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const cleanTxt = (t, n) => String(t || '').replace(/[\u0000-\u001f<>]/g, '').replace(/\s+/g, ' ').trim().replace(/^[=+\-@]+/, '').slice(0, n);
+  const pkey = (name, kelas) => cleanTxt(name, 20).toLowerCase() + '|' + cleanTxt(kelas, 12).toLowerCase();
+  function bestPerPlayer(rows) {
+    const best = {};
+    rows.forEach((r) => {
+      const k = pkey(r.name, r.kelas);
+      if (!best[k] || r.score > best[k].score || (r.score === best[k].score && r.time < best[k].time)) best[k] = r;
+    });
+    return Object.keys(best).map((k) => best[k]).sort((a, b) => b.score - a.score || b.solved - a.solved || a.time - b.time);
+  }
+  function localRows() { try { return JSON.parse(localStorage.getItem(LB_KEY) || '[]'); } catch (e) { return []; } }
+  function localAdd(entry) {
+    try {
+      const rows = localRows(); rows.push(entry);
+      localStorage.setItem(LB_KEY, JSON.stringify(rows.slice(-300)));
+    } catch (e) {}
+  }
+  const LB = {
+    shared: !!SHEET_URL,
+    async submit(entry) {
+      localAdd(entry);
+      if (!SHEET_URL) return 'local';
+      try {
+        const r = await fetch(SHEET_URL, { method: 'POST', body: JSON.stringify(entry) });
+        const j = await r.json();
+        return j && j.ok ? 'sent' : 'error';
+      } catch (e) { return 'error'; }
+    },
+    async top(level) {
+      if (!SHEET_URL) return bestPerPlayer(localRows().filter((r) => r.level === level)).slice(0, 20);
+      const r = await fetch(SHEET_URL + (SHEET_URL.indexOf('?') > -1 ? '&' : '?') + 'level=' + level + '&t=' + Date.now());
+      const j = await r.json();
+      if (!j || !j.ok) throw new Error('bad');
+      return bestPerPlayer(j.rows.map((x) => ({ name: x.name, kelas: x.kelas, score: +x.score, solved: +x.solved, time: +x.time, level: level })));
+    }
+  };
+  function tableHTML(rows, meKey, limit) {
+    const head = '<table class="lb"><thead><tr><th class="r">' + g('hRank') + '</th><th>' + g('hName') + '</th><th class="k">' + g('hClass') + '</th><th class="s">' + g('hScore') + '</th></tr></thead><tbody>';
+    const body = rows.slice(0, limit).map((r, i) => {
+      const rk = i < 3 ? '<span class="medal m' + (i + 1) + '">' + (i + 1) + '</span>' : (i + 1);
+      const me = meKey && pkey(r.name, r.kelas) === meKey;
+      return '<tr' + (me ? ' class="me"' : '') + '><td class="r">' + rk + '</td><td class="n">' + esc(r.name) + (me ? ' <small>(' + g('you') + ')</small>' : '') +
+        '</td><td class="k">' + (r.kelas ? esc(r.kelas) : '–') + '</td><td class="s">' + r.score + '</td></tr>';
+    }).join('');
+    return head + body + '</tbody></table>';
+  }
+  let player = { name: '', kelas: '' };
+  try { const pp = JSON.parse(localStorage.getItem('blok-algebra-pemain-v1') || 'null'); if (pp) player = { name: cleanTxt(pp.name, 20), kelas: cleanTxt(pp.kelas, 12) }; } catch (e) {}
 
   const TAU = Math.PI * 2;
   const MIN = '−';
@@ -812,7 +950,7 @@ body{margin:0;overflow:hidden;background:#5a3a1c}
   canvas.addEventListener('pointercancel', endDrag);
   canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 
-  const screens = ['sStart', 'sPause', 'sResult'];
+  const screens = ['sStart', 'sPause', 'sResult', 'sBoard'];
   function showScreen(id) { screens.forEach((s) => { $(s).hidden = (s !== id); }); $('overlay').hidden = !id; }
   function releaseDrag() { if (drag) { drag.b.held = false; drag = null; } }
 
@@ -821,7 +959,7 @@ body{margin:0;overflow:hidden;background:#5a3a1c}
     level = lv; cfg = LEVELS[lv];
     score = 0; solved = 0; wrongN = 0; streak = 0; qNo = 0; goalHit = false; lastTick = -1; lastGen = null;
     timeLeft = cfg.masa;
-    parts = []; floats = []; slots = []; q = null; layoutInfo = null; lastResult = null;
+    parts = []; floats = []; slots = []; q = null; layoutInfo = null; lastResult = null; rState = null;
     releaseDrag();
     state = 'play'; phase = 'ask';
     hud.classList.add('on');
@@ -851,12 +989,81 @@ body{margin:0;overflow:hidden;background:#5a3a1c}
     }
     lastResult = { win: win, solved: solved, goal: cfg.sasaran, score: score, wrong: wrongN, record: record, best: best[level] };
     renderResult();
+    submitResult();
     hud.classList.remove('on');
     measureHud();
     showScreen('sResult');
     if (win) { sfx('win'); for (let i = 0; i < 5; i++) burst(W * (0.15 + i * 0.175), H * 0.3, 40); }
     else sfx('lose');
   }
+  /* ---- leaderboard flow ---- */
+  let rState = null;   // { status, rows }
+  function renderResultBoard() {
+    const st = $('rStat'), list = $('rList'), rk = $('rRank');
+    if (!rState) { st.textContent = ''; list.hidden = true; rk.hidden = true; return; }
+    st.className = 'lbstat' + (rState.status === 'sent' || rState.status === 'local' ? ' okk' : '');
+    st.textContent = rState.status === 'sending' ? g('sending') : rState.status === 'sent' ? g('sent') : rState.status === 'local' ? g('sentLocal') : g('sendErr');
+    if (rState.rows) {
+      const me = pkey(player.name, player.kelas);
+      const pos = rState.rows.findIndex((r) => pkey(r.name, r.kelas) === me);
+      rk.hidden = pos < 0;
+      if (pos >= 0) rk.textContent = g('rankMsg')(pos + 1, rState.level);
+      list.innerHTML = tableHTML(rState.rows, me, 5);
+      list.hidden = false;
+    } else { list.hidden = true; rk.hidden = true; }
+  }
+  async function submitResult() {
+    const lv = level;
+    const entry = { name: player.name, kelas: player.kelas, level: lv, score: score, solved: solved, wrong: wrongN, time: Date.now() };
+    rState = { status: 'sending', rows: null, level: lv };
+    renderResultBoard();
+    const status = await LB.submit(entry);
+    if (!rState || rState.level !== lv) return;
+    rState.status = status;
+    try { rState.rows = await LB.top(lv); } catch (e) { rState.rows = null; }
+    if (state === 'over') renderResultBoard();
+  }
+  let boardLevel = 1, boardFrom = 'sStart', boardRows = null, boardErr = false, boardReq = 0;
+  function renderBoard() {
+    document.querySelectorAll('#lbTabs button').forEach((b) => {
+      b.textContent = g('lv')(+b.dataset.lv);
+      b.setAttribute('aria-pressed', String(+b.dataset.lv === boardLevel));
+    });
+    $('lbTabs').setAttribute('aria-label', g('board'));
+    const list = $('lbList'), st = $('lbStat');
+    if (boardErr) { list.innerHTML = ''; list.hidden = true; st.textContent = g('loadErr'); return; }
+    if (!boardRows) { list.hidden = true; st.textContent = g('loading'); return; }
+    if (!boardRows.length) { list.hidden = true; st.textContent = g('empty'); return; }
+    list.hidden = false;
+    list.innerHTML = tableHTML(boardRows, pkey(player.name, player.kelas), 20);
+    st.textContent = LB.shared ? g('onlineNote') : g('localNote');
+  }
+  async function loadBoard(lv) {
+    boardLevel = lv; boardRows = null; boardErr = false;
+    const req = ++boardReq;
+    renderBoard();
+    try { const rows = await LB.top(lv); if (req !== boardReq) return; boardRows = rows; }
+    catch (e) { if (req !== boardReq) return; boardErr = true; }
+    renderBoard();
+  }
+  function openBoard(from) {
+    boardFrom = from;
+    showScreen('sBoard');
+    loadBoard(from === 'sResult' ? level : boardLevel);
+  }
+  function readPlayer() {
+    const n = cleanTxt($('pName').value, 20), k = cleanTxt($('pClass').value, 12);
+    if (!n) {
+      $('pErr').textContent = g('needName'); $('pErr').hidden = false;
+      $('pName').classList.add('bad'); $('pName').focus();
+      return false;
+    }
+    player = { name: n, kelas: k };
+    try { localStorage.setItem('blok-algebra-pemain-v1', JSON.stringify(player)); } catch (e) {}
+    $('pErr').hidden = true; $('pName').classList.remove('bad');
+    return true;
+  }
+
   function toMenu() {
     releaseDrag();
     state = 'menu'; phase = 'ask'; q = null; slots = []; layoutInfo = null;
@@ -867,7 +1074,13 @@ body{margin:0;overflow:hidden;background:#5a3a1c}
   function pauseGame() { if (state !== 'play') return; releaseDrag(); state = 'paused'; showScreen('sPause'); }
   function resumeGame() { if (state !== 'paused') return; state = 'play'; showScreen(null); }
 
-  document.querySelectorAll('#blok .lv').forEach((b) => b.addEventListener('click', () => startGame(parseInt(b.getAttribute('data-lv'), 10))));
+  document.querySelectorAll('#blok .lv').forEach((b) => b.addEventListener('click', () => { if (readPlayer()) startGame(parseInt(b.getAttribute('data-lv'), 10)); }));
+  $('pName').value = player.name; $('pClass').value = player.kelas;
+  $('pName').addEventListener('input', () => { if ($('pName').value.trim()) { $('pErr').hidden = true; $('pName').classList.remove('bad'); } });
+  $('bBoard').addEventListener('click', () => openBoard('sStart'));
+  $('bBoard2').addEventListener('click', () => openBoard('sResult'));
+  $('bBack').addEventListener('click', () => showScreen(boardFrom));
+  document.querySelectorAll('#lbTabs button').forEach((b) => b.addEventListener('click', () => loadBoard(+b.dataset.lv)));
   $('bAgain').addEventListener('click', () => startGame(level));
   $('bMenu').addEventListener('click', toMenu);
   $('bPause').addEventListener('click', pauseGame);
@@ -884,6 +1097,7 @@ body{margin:0;overflow:hidden;background:#5a3a1c}
   function setMuteLabel() { $('bMute').textContent = muted ? g('soundOff') : g('soundOn'); $('bMute').setAttribute('aria-pressed', String(muted)); }
   $('bMute').addEventListener('click', () => { muted = !muted; setMuteLabel(); });
   window.addEventListener('keydown', (e) => {
+    if (e.target && e.target.tagName === 'INPUT') return;
     if (e.key === 'p' || e.key === 'P' || e.key === 'Escape') {
       if (state === 'play') pauseGame(); else if (state === 'paused') resumeGame();
     }
@@ -897,6 +1111,10 @@ body{margin:0;overflow:hidden;background:#5a3a1c}
     canvas.setAttribute('aria-label', g('aria'));
     setMuteLabel();
     renderResult();
+    renderResultBoard();
+    renderBoard();
+    $('pName').placeholder = g('namePh'); $('pClass').placeholder = g('kelasPh');
+    if (!$('pErr').hidden) $('pErr').textContent = g('needName');
     if (q && state !== 'menu') layoutQuestion();
   }
   document.querySelectorAll('#blok .glang button').forEach((b) => b.addEventListener('click', () => {
@@ -923,5 +1141,5 @@ body{margin:0;overflow:hidden;background:#5a3a1c}
   }
 })();
 </script>
-
-</body></html>
+</body>
+</html>
